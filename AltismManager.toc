@@ -1,0 +1,10 @@
+## Interface: 110100
+## Title: Altism Manager
+## Category: Altism
+## Author: ennukee
+## Version: TWW11.1-v1.0.0
+## Notes: Basic alt currency and lockout manager
+## SavedVariables: AltismManagerDB
+
+embeds.xml
+AltismManager.lua
