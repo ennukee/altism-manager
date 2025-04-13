@@ -1198,25 +1198,25 @@ function AltismManager:RaidVaultSummaryString(alt_data)
 	if alt_data.raidvault[2] == "X" then
 		result = result .. " / |cFF999999X|r"
 	elseif alt_data.raidvault[2] == "N" then
-		result = result .. " / |cFF1eff00" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF1eff00" .. alt_data.raidvault[2] .. "|r"
 	elseif alt_data.raidvault[2] == "H" then
-		result = result .. " / |cFF0070dd" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF0070dd" .. alt_data.raidvault[2] .. "|r"
 	elseif alt_data.raidvault[2] == "M" then
-		result = result .. " / |cFFa335ee" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFFa335ee" .. alt_data.raidvault[2] .. "|r"
 	else
-		result = result .. " / |cFF999999" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF999999" .. alt_data.raidvault[2] .. "|r"
 	end
 	
 	if alt_data.raidvault[3] == "X" then
 		result = result .. " / |cFF999999X|r"
 	elseif alt_data.raidvault[3] == "N" then
-		result = result .. " / |cFF1eff00" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF1eff00" .. alt_data.raidvault[3] .. "|r"
 	elseif alt_data.raidvault[3] == "H" then
-		result = result .. " / |cFF0070dd" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF0070dd" .. alt_data.raidvault[3] .. "|r"
 	elseif alt_data.raidvault[3] == "M" then
-		result = result .. " / |cFFa335ee" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFFa335ee" .. alt_data.raidvault[3] .. "|r"
 	else
-		result = result .. " / |cFF999999" .. alt_data.raidvault[1] .. "|r"
+		result = result .. " / |cFF999999" .. alt_data.raidvault[3] .. "|r"
 	end
 
 	return result ~= "" and result or "-"
