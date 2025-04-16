@@ -847,7 +847,7 @@ function AltismManager:CollectData()
 
 	local weeklyRaid = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.Raid);
 	if (#weeklyRaid < 3) then
-		print("[AltismManager]: Issue retrieving raid vault data, values may be inaccurate.")
+		-- print("[AltismManager]: Issue retrieving raid vault data, values may be inaccurate.")
 	else
 		local raidVaultOutput = {}
 		table.insert(raidVaultOutput, difficultyMap[weeklyRaid[1].level] or "X")
@@ -858,7 +858,7 @@ function AltismManager:CollectData()
 
 	local weeklyDelve = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.World);
 	if (#weeklyDelve < 3) then
-		print("[AltismManager]: Issue retrieving delve vault data, values may be inaccurate.")
+		-- print("[AltismManager]: Issue retrieving delve vault data, values may be inaccurate.")
 	else
 		local delveVaultOutput = {}
 		table.insert(delveVaultOutput, weeklyDelve[1].level or "X")
@@ -869,7 +869,7 @@ function AltismManager:CollectData()
 
 	local weeklyKeys = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.MythicPlus);
 	if (#weeklyKeys < 3) then
-		print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
+		-- print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
 	else
 		local mythicPlusVaultOutput = {}
 		table.insert(mythicPlusVaultOutput, weeklyKeys[1].level or "X")
