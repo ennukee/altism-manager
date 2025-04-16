@@ -752,7 +752,7 @@ function AltismManager:CollectData()
 		mine_old = AltismManagerDB.data[guid];
 	end
 
-	-- C_MythicPlus.RequestRewards();
+	-- C_MythicPlus.RequestRewards()
 	C_MythicPlus.RequestCurrentAffixes();
 	C_MythicPlus.RequestMapInfo();
 	for k,v in pairs(dungeons) do
