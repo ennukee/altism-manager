@@ -696,7 +696,7 @@ local dungeons = {
 	-- [252] = "SotS",
 	--[353] = "SoB",
 	--[369] = "YARD",
-	[370] = "SHOP",
+	[370] = "WORK",
 	-- Shadowlands
 	--[375] = "MoTS",
 	--[376] = "NW",
