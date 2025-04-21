@@ -3,7 +3,7 @@ _G["AltismManager"] = AltismManager;
 local Dialog = LibStub("LibDialog-1.0")
 
 -- CONSTANTS
-local sizeY = 560;
+local sizeY = 590;
 local pvpToggleSize = 90;
 local undermineToggleSize = 30;
 local worldBossToggleSize = 30;
@@ -14,6 +14,7 @@ local mythicPlusVaultToggleSize = 30;
 local delveVaultToggleSize = 30;
 local cofferKeysToggleSize = 30;
 local mythicPlusToggleSize = 90;
+local sparkToggleSize = 30;
 
 local offsetX = 0;
 local offsetY = 40;
@@ -204,6 +205,9 @@ function AltismManager:CalculateYSize()
 		if not AltismManagerDB.showCofferKeysEnabled then
 			modifiedSize = modifiedSize - cofferKeysToggleSize;
 		end
+		if not AltismManagerDB.showSparksEnabled then
+			modifiedSize = modifiedSize - sparkToggleSize;
+		end
 	end
 	return modifiedSize
 end
@@ -237,13 +241,23 @@ function AltismManager:PurgeDbShadowlands()
 	end
 end
 
+function AltismManager:AddMissingField(name, value)
+	if AltismManagerDB == nil then return end
+	if AltismManagerDB[name] == nil then
+		AltismManagerDB[name] = value
+	end
+end
+
 function AltismManager:AddMissingPostReleaseFields()
-	AltismManagerDB.showGoldEnabled = AltismManagerDB.showGoldEnabled or true;
-	AltismManagerDB.showMythicPlusDataEnabled = AltismManagerDB.showMythicPlusDataEnabled or true;
-	AltismManagerDB.showValorstonesEnabled = AltismManagerDB.showValorstonesEnabled or true;
-	AltismManagerDB.showPVPCurrenciesEnabled = AltismManagerDB.showPVPCurrenciesEnabled or true;
-	AltismManagerDB.showWorldBossEnabled = AltismManagerDB.showWorldBossEnabled or true;
-	AltismManagerDB.showUndermineEnabled = AltismManagerDB.showUndermineEnabled or true;
+	if AltismManagerDB == nil then return end
+
+	AltismManager:AddMissingField("showGoldEnabled", true)
+	AltismManager:AddMissingField("showMythicPlusDataEnabled", true)
+	AltismManager:AddMissingField("showValorstonesEnabled", true)
+	AltismManager:AddMissingField("showPVPCurrenciesEnabled", true)
+	AltismManager:AddMissingField("showWorldBossEnabled", true)
+	AltismManager:AddMissingField("showUndermineEnabled", true)
+	AltismManager:AddMissingField("showSparksEnabled", true)
 end
 
 function AltismManager:OnLoad()
@@ -252,7 +266,7 @@ function AltismManager:OnLoad()
 	AltismManagerDB = AltismManagerDB or self:InitDB();
 
 	self:PurgeDbShadowlands();
-	-- self:AddMissingPostReleaseFields();
+	self:AddMissingPostReleaseFields();
 
 	if AltismManagerDB.alts ~= true_numel(AltismManagerDB.data) then
 		print("Altcount inconsistent, using", true_numel(AltismManagerDB.data))
@@ -929,6 +943,12 @@ function AltismManager:CollectData()
 	local mplus_data = C_PlayerInfo.GetPlayerMythicPlusRatingSummary('player')
 	local mplus_score = mplus_data.currentSeasonScore
 
+	local sparkData = C_CurrencyInfo.GetCurrencyInfo(3132);
+	local currentSparks = sparkData.quantity;
+	local maxSparks = sparkData.maxQuantity;
+	char_table.currentSparks = currentSparks;
+	AltismManagerDB.currentMaxSparks = maxSparks;
+
 	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(84736)
 	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(84737)
 	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(84738)
@@ -981,18 +1001,6 @@ function AltismManager:CollectData()
 	char_table.expires = self:GetNextWeeklyResetTime();
 	char_table.data_obtained = time();
 	char_table.time_until_reset = C_DateAndTime.GetSecondsUntilDailyReset();
-
-	-- if char_table.raidsaves then
-	-- 	print(#char_table.raidsaves)
-	-- 	for raid, data in pairs(char_table.raidsaves) do
-	-- 		print("Raid:", raid)
-	-- 		for boss, isKilled in pairs(data) do
-	-- 			print("  Boss:", boss, "Killed:", tostring(isKilled))
-	-- 		end
-	-- 	end
-	-- else
-	-- 	print("No raid saves found.")
-	-- end
 
 	return char_table;
 end
@@ -1383,6 +1391,18 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showCofferKeysEnabled,
 			data = function(alt_data)
 				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
+			end,
+		},
+		sparks = {
+			order = 6.02,
+			label = "Sparks |T5929751:16:16:0:0|t",
+			enabled = AltismManagerDB.showSparksEnabled,
+			data = function(alt_data)
+				if (alt_data.currentSparks == AltismManagerDB.currentMaxSparks) then
+					return "|cFF39ec3c" .. tostring(alt_data.currentSparks or "?") .. " / " .. (AltismManagerDB.currentMaxSparks or "?") .. "|r"
+				else 
+					return tostring(alt_data.currentSparks or "?") .. " / " .. (AltismManagerDB.currentMaxSparks or "?")
+				end
 			end,
 		},
 		-- ! Offset
@@ -1858,6 +1878,7 @@ panel:SetScript("OnShow", function()
 		showDelveVault = "Show Delve Vault",
 		showRemainingCrests = "Show remaining crests to be earned up to cap",
 		showCofferKeys = "Show Coffer Keys",
+		showSparks = "Show Fractured Spark of Fortune progress",
 	}
   local keys = {
 		"showGold",
@@ -1871,10 +1892,11 @@ panel:SetScript("OnShow", function()
 		"showPVPCurrencies",
 		"showWorldBoss",
 		"showUndermine",
+		"showSparks",
 	}
-	if #keys ~= #kinds then
-		print("[Alt Manager]: Config key lengths do not match. There might be a missing config value in settings.")
-	end
+	-- if #keys ~= #kinds then
+	-- 	print("[Alt Manager]: Config key lengths do not match. There might be a missing config value in settings.")
+	-- end
   -- for key in pairs(kinds) do table.insert(keys, key) end
   -- table.sort(keys)
 
