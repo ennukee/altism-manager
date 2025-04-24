@@ -1,49 +1,10 @@
 local addonName, AltismManager = ...;
 _G["AltismManager"] = AltismManager;
+
 local Dialog = LibStub("LibDialog-1.0")
+local C = AltismManager.C;
+AltismManager.healthCheck = true;
 
--- CONSTANTS
-local sizeY = 620;
-local pvpToggleSize = 90;
-local undermineToggleSize = 30;
-local worldBossToggleSize = 30;
-local goldToggleSize = 20;
-local valorstonesToggleSize = 60;
-local raidVaultToggleSize = 30;
-local mythicPlusVaultToggleSize = 30;
-local delveVaultToggleSize = 30;
-local cofferKeysToggleSize = 30;
-local mythicPlusToggleSize = 90;
-local sparkToggleSize = 30;
-local catalystToggleSize = 30;
-
-local offsetX = 0;
-local offsetY = 40;
-local addonName = "AltismManager";
-local perAltX = 150;
-local ilvlTextSize = 8;
-local removeButtonSize = 12;
-local minSizeX = 300;
-local minLevel = 70;
-
-local mythTrackKeyVaultThreshold = 10
-local maxLootDelveVaultThreshold = 8
-
-local nameLabel = "" -- Name
--- /dump C_CurrencyInfo.GetCurrencyInfo(#)
-local mythicKeystoneLabel = "Keystone |T525134:16:16:0:0|t"
-local mythicPlusLabel = "Mythic+ Rating"
-local worldBossLabel = "World Boss"
-local conquestLabel = "Conquest |T1523630:16:16:0:0|t"
-local conquestEarnedLabel = "Conquest Earned"
-local whelplingCrestLabel = "Weathered |T5872053:16:16:0:0|t"
-local drakeCrestLabel = "Carved |T5872047:16:16:0:0|t"
-local wyrmCrestLabel = "Runed |T5872051:16:16:0:0|t"
-local aspectCrestLabel = "Gilded |T5872049:16:16:0:0|t"
-local honorLabel = "Honor |T1455894:16:16:0:0|t"
-local flightstoneLabel = "Valorstones |T5868902:16:16:0:0|t"
--- local undercoinLabel = "Undercoin"
--- local resonanceCrystalLabel = "Resonance Crystal"
 local isTimerunner = nil
 
 SLASH_ALTMANAGER1 = "/am";
@@ -95,7 +56,7 @@ do
 
 	-- Set frame position
 	main_frame:ClearAllPoints()
-	main_frame:SetPoint("CENTER", UIParent, "CENTER", offsetX, offsetY)
+	main_frame:SetPoint("CENTER", UIParent, "CENTER", C.pixelSizing.offsetX, C.pixelSizing.offsetY)
 	main_frame:RegisterEvent("ADDON_LOADED")
 	main_frame:RegisterEvent("PLAYER_LOGIN")
 	main_frame:RegisterEvent("PLAYER_LOGOUT")
@@ -161,12 +122,15 @@ function AltismManager:InitDB()
 	t.showMythicPlusVaultEnabled = true;
 	t.showDelveVaultEnabled = true;
 	t.showCofferKeysEnabled = true;
+	t.showSparksEnabled = true;
+	t.showCatalystEnabled = true;
+	t.showRaidVaultEnabled = true;
 	return t;
 end
 
 function AltismManager:CalculateXSizeNoGuidCheck()
 	local alts = AltismManagerDB.alts;
-	return max((alts + 1) * perAltX, minSizeX)
+	return max((alts + 1) * C.pixelSizing.perAltX, C.pixelSizing.minSizeX)
 end
 
 function AltismManager:CalculateXSize()
@@ -174,43 +138,104 @@ function AltismManager:CalculateXSize()
 end
 
 function AltismManager:CalculateYSize()
-	local modifiedSize = sizeY;
+	local modifiedSize = C.pixelSizing.baseWindowSize;
 	if AltismManagerDB then
-		if not AltismManagerDB.showPVPCurrenciesEnabled then
-			modifiedSize = modifiedSize - pvpToggleSize;
-		end
-		if not AltismManagerDB.showMythicPlusDataEnabled then
-			modifiedSize = modifiedSize - mythicPlusToggleSize;
-		end
-		if not AltismManagerDB.showValorstonesEnabled then
-			modifiedSize = modifiedSize - valorstonesToggleSize;
-		end
-		if not AltismManagerDB.showWorldBossEnabled then
-			modifiedSize = modifiedSize - worldBossToggleSize;
-		end
-		if not AltismManagerDB.showUndermineEnabled then
-			modifiedSize = modifiedSize - undermineToggleSize;
-		end
+		-- General section
 		if not AltismManagerDB.showGoldEnabled then
-			modifiedSize = modifiedSize - goldToggleSize;
+			modifiedSize = modifiedSize - C.toggles.gold;
 		end
+
+		-- General -> Vault Gap
+		if not AltismManagerDB.showRaidVaultEnabled and not AltismManagerDB.showMythicPlusVaultEnabled and not AltismManagerDB.showDelveVaultEnabled and not AltismManagerDB.showMythicPlusDataEnabled then
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+
+		-- Vault section
 		if not AltismManagerDB.showRaidVaultEnabled then
-			modifiedSize = modifiedSize - raidVaultToggleSize;
-		end
-		if not AltismManagerDB.showMythicPlusVaultEnabled then
-			modifiedSize = modifiedSize - mythicPlusVaultToggleSize;
+			modifiedSize = modifiedSize - C.toggles.raidVault;
 		end
 		if not AltismManagerDB.showDelveVaultEnabled then
-			modifiedSize = modifiedSize - delveVaultToggleSize;
+			modifiedSize = modifiedSize - C.toggles.delveVault;
+		end
+		if not AltismManagerDB.showMythicPlusVaultEnabled then
+			modifiedSize = modifiedSize - C.toggles.mythicPlusVault;
+		end
+		if not AltismManagerDB.showMythicPlusDataEnabled then
+			modifiedSize = modifiedSize - C.toggles.mythicPlus;
+		end
+
+		-- Vault -> Valorstone Gap
+		if not AltismManagerDB.showValorstonesEnabled and not AltismManagerDB.showCofferKeysEnabled and not AltismManagerDB.showSparksEnabled and not AltismManagerDB.showCatalystEnabled then
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+	
+		-- Valorstone section
+		if not AltismManagerDB.showValorstonesEnabled then
+			modifiedSize = modifiedSize - C.toggles.valorstones;
 		end
 		if not AltismManagerDB.showCofferKeysEnabled then
-			modifiedSize = modifiedSize - cofferKeysToggleSize;
+			modifiedSize = modifiedSize - C.toggles.cofferKeys;
 		end
 		if not AltismManagerDB.showSparksEnabled then
-			modifiedSize = modifiedSize - sparkToggleSize;
+			modifiedSize = modifiedSize - C.toggles.spark;
 		end
 		if not AltismManagerDB.showCatalystEnabled then
-			modifiedSize = modifiedSize - catalystToggleSize;
+			modifiedSize = modifiedSize - C.toggles.catalyst;
+		end
+
+		-- Valorstone -> Crest Gap
+		if not AltismManagerDB.showWhelplingCrest and not AltismManagerDB.showDrakeCrest and not AltismManagerDB.showWyrmCrest and not AltismManagerDB.showAspectCrest then
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+
+		-- Upgrade crests section
+		if not AltismManagerDB.showWhelplingCrestEnabled then
+			modifiedSize = modifiedSize - C.toggles.whelpling;
+		end
+		if not AltismManagerDB.showDrakeCrestEnabled then
+			modifiedSize = modifiedSize - C.toggles.drake;
+		end
+		if not AltismManagerDB.showWyrmCrestEnabled then
+			modifiedSize = modifiedSize - C.toggles.wyrm;
+		end
+		if not AltismManagerDB.showAspectCrestEnabled then
+			modifiedSize = modifiedSize - C.toggles.aspect;
+		end
+
+		-- Crests -> PVP Gap included below
+
+		-- PVP Section
+		if not AltismManagerDB.showPVPCurrenciesEnabled then
+			modifiedSize = modifiedSize - C.toggles.pvp;
+			-- Remove the gap between PVP and Boss section as well
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+
+		-- PVP -> Boss Gap
+		if not AltismManagerDB.showWorldBossEnabled
+			and (
+				not AltismManagerDB.showUndermineEnabled
+				or (
+					not AltismManagerDB.showUndermineNormalEnabled
+					and not AltismManagerDB.showUndermineHeroicEnabled
+					and not AltismManagerDB.showUndermineMythicEnabled
+				)
+			) then
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+
+		-- Boss Section
+		if not AltismManagerDB.showWorldBossEnabled then
+			modifiedSize = modifiedSize - C.toggles.worldBoss;
+		end
+		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineNormalEnabled then
+			modifiedSize = modifiedSize - C.toggles.normal;
+		end
+		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineHeroicEnabled then
+			modifiedSize = modifiedSize - C.toggles.heroic;
+		end
+		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineMythicEnabled then
+			modifiedSize = modifiedSize - C.toggles.mythic;
 		end
 	end
 	return modifiedSize
@@ -234,7 +259,7 @@ function AltismManager:PurgeDbShadowlands()
 	if AltismManagerDB == nil or AltismManagerDB.data == nil then return end
 	local remove = {}
 	for alt_guid, alt_data in spairs(AltismManagerDB.data, function(t, a, b) return t[a].ilevel > t[b].ilevel end) do
-		if alt_data.charlevel == nil or alt_data.charlevel < minLevel or isTimerunner ~= nil then -- poor heuristic to remove old max level chars
+		if alt_data.charlevel == nil or alt_data.charlevel < C.misc.minLevelToShow or isTimerunner ~= nil then -- poor heuristic to remove old max level chars
 			table.insert(remove, alt_guid)
 		end
 	end
@@ -255,14 +280,40 @@ end
 function AltismManager:AddMissingPostReleaseFields()
 	if AltismManagerDB == nil then return end
 
+	-- General
 	AltismManager:AddMissingField("showGoldEnabled", true)
+	
+	-- Vault section
+	AltismManager:AddMissingField("showRaidVaultEnabled", true)
+	AltismManager:AddMissingField("showMythicPlusVaultEnabled", true)
+	AltismManager:AddMissingField("showDelveVaultEnabled", true)
 	AltismManager:AddMissingField("showMythicPlusDataEnabled", true)
+
+	-- Valorstone seciton
 	AltismManager:AddMissingField("showValorstonesEnabled", true)
-	AltismManager:AddMissingField("showPVPCurrenciesEnabled", true)
-	AltismManager:AddMissingField("showWorldBossEnabled", true)
-	AltismManager:AddMissingField("showUndermineEnabled", true)
+	AltismManager:AddMissingField("showCofferKeysEnabled", true)
 	AltismManager:AddMissingField("showSparksEnabled", true)
 	AltismManager:AddMissingField("showCatalystEnabled", true)
+
+	-- Upgrade crests section
+	AltismManager:AddMissingField("showRemainingCrestsEnabled", true)
+	AltismManager:AddMissingField("showWhelplingCrestEnabled", true)
+	AltismManager:AddMissingField("showDrakeCrestEnabled", true)
+	AltismManager:AddMissingField("showWyrmCrestEnabled", true)
+	AltismManager:AddMissingField("showAspectCrestEnabled", true)
+
+	-- PVP section
+	AltismManager:AddMissingField("showPVPCurrenciesEnabled", true)
+
+	-- Boss section
+	AltismManager:AddMissingField("showWorldBossEnabled", true)
+	AltismManager:AddMissingField("showUndermineEnabled", true)
+	AltismManager:AddMissingField("showUndermineNormalEnabled", true)
+	AltismManager:AddMissingField("showUndermineHeroicEnabled", true)
+	AltismManager:AddMissingField("showUndermineMythicEnabled", true)
+	-- AltismManager:AddMissingField("showNerubarPalaceEnabled", true)
+
+
 end
 
 function AltismManager:OnLoad()
@@ -402,25 +453,33 @@ local function ToggleMinimapButtonVisibility()
 end
 
 -- Set up the minimap button dragging functionality
+local mouseDownTime = nil;
 minimapButton:SetScript("OnMouseDown", function(self, button)
     if button == "LeftButton" then
         dragging = true
+				mouseDownTime = GetTime()
         local mx, my = Minimap:GetCenter()
         local px, py = GetCursorPosition()
         local scale = UIParent:GetEffectiveScale()
         startX, startY = (px / scale) - mx, (py / scale) - my
         startAngle = math.atan2(startY, startX)
     elseif button == "RightButton" then
-        --print("Right-click detected")  -- Debug message
-        ToggleMinimapButtonVisibility()
+			if not AltismManager.settingsCategory then
+				print("[Alt Manager] Config panel was not initialized. Try /reload-ing and report the issue if it persists.")
+			end
+			Settings.OpenToCategory(AltismManager.settingsCategory.ID)
     end
 end)
 
 minimapButton:SetScript("OnMouseUp", function(self, button)
     if dragging and button == "LeftButton" then
-        dragging = false
-        -- Save the new position
-        SaveMinimapButtonPosition()
+				dragging = false
+				if GetTime() - mouseDownTime < 0.25 then
+					AltismManager:ShowInterface()
+				else
+					-- Save the new position only if dragging is qualified as a proper drag
+					SaveMinimapButtonPosition()
+				end
     end
 end)
 
@@ -466,8 +525,8 @@ minimapButton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
     GameTooltip:AddLine("|cffffff00AltismManager|r")
     GameTooltip:AddLine("Left-click |cffffff00to toggle window|r")
-    GameTooltip:AddLine("Right-click |cffffff00to hide button|r")
-    GameTooltip:AddLine("|cffffff00/alts mm|r to restore button")
+    GameTooltip:AddLine("Right-click |cffffff00to open settings|r")
+    GameTooltip:AddLine("|cffffff00/alts mm|r to hide/show this button")
     GameTooltip:Show()
 end)
 
@@ -664,7 +723,7 @@ function AltismManager:RemoveCharacterByGuid(index, skip_confirmation)
 end
 
 function AltismManager:StoreData(data)
-	if not self.addon_loaded or not data or not data.guid or UnitLevel('player') < minLevel or isTimerunner ~= nil then
+	if not self.addon_loaded or not data or not data.guid or UnitLevel('player') < C.misc.minLevelToShow or isTimerunner ~= nil then
 		return
 	end
 
@@ -751,7 +810,7 @@ local dungeons = {
 };
 
 function AltismManager:CollectData()
-	if UnitLevel('player') < minLevel or isTimerunner ~= nil then return end;
+	if UnitLevel('player') < C.misc.minLevelToShow or isTimerunner ~= nil then return end;
 	-- this is an awful hack that will probably have some unforeseen consequences,
 	-- but Blizzard fucked something up with systems on logout, so let's see how it
 	-- goes.
@@ -943,8 +1002,6 @@ function AltismManager:CollectData()
 	local aspects_earned = aspects_info.totalEarned;
 	local honor_points = GetCurrencyAmount(1792);
 	local flightstones = GetCurrencyAmount(3008);
-	local undercoin = GetCurrencyAmount(2803);
-	local resonance_crystal = GetCurrencyAmount(2815);
 	local mplus_data = C_PlayerInfo.GetPlayerMythicPlusRatingSummary('player')
 	local mplus_score = mplus_data.currentSeasonScore
 
@@ -998,8 +1055,6 @@ function AltismManager:CollectData()
 	char_table.aspects_max = aspects_max;
 	char_table.aspects_earned = aspects_earned;
 	char_table.flightstones = flightstones;
-	char_table.undercoin = undercoin;
-	char_table.resonance_crystal = resonance_crystal;
 	char_table.honor_points = honor_points;
 	char_table.cofferKeysObtained = b2n(cofferKey1) + b2n(cofferKey2) + b2n(cofferKey3) + b2n(cofferKey4)
 
@@ -1033,9 +1088,9 @@ function AltismManager:UpdateStrings()
 		if not self.main_frame.alt_columns[alt] then
 			self.main_frame.alt_columns[alt] = anchor_frame;
 			self.main_frame.alt_columns[alt].guid = alt_guid
-			anchor_frame:SetPoint("TOPLEFT", self.main_frame, "TOPLEFT", perAltX * alt, -1);
+			anchor_frame:SetPoint("TOPLEFT", self.main_frame, "TOPLEFT", C.pixelSizing.perAltX * alt, -1);
 		end
-		anchor_frame:SetSize(perAltX, self:CalculateYSize());
+		anchor_frame:SetSize(C.pixelSizing.perAltX, self:CalculateYSize());
 		-- init table for fontstring storage
 		self.main_frame.alt_columns[alt].label_columns = self.main_frame.alt_columns[alt].label_columns or {};
 		local label_columns = self.main_frame.alt_columns[alt].label_columns;
@@ -1043,7 +1098,7 @@ function AltismManager:UpdateStrings()
 		local i = 1;
 		for column_iden, column in spairs(self.columns_table, function(t, a, b) return t[a].order < t[b].order end) do
 			-- only display data with values
-			if column.type == "raidprogress" then
+			if column.enabled and column.type == "raidprogress" then
 				for raidIndex = 1,8 do
 					local raidIcon = anchor_frame:CreateTexture(nil);
 					if column.data(alt_data) and column.data(alt_data)[raidIndex] then
@@ -1062,10 +1117,10 @@ function AltismManager:UpdateStrings()
 						"TOPLEFT",
 						anchor_frame,
 						"TOPLEFT",
-						(raidIndex - 1) * ((perAltX - 10) / 8) + 10,
+						(raidIndex - 1) * ((C.pixelSizing.perAltX - 10) / 8) + 10,
 						-(i - 1) * font_height - 3
 					);
-					raidIcon:SetSize(((perAltX - 10) / 8) - 6, font_height - 6);
+					raidIcon:SetSize(((C.pixelSizing.perAltX - 10) / 8) - 6, font_height - 6);
 					raidIcon:SetDrawLayer("ARTWORK", 7);
 					if alt_data.undermine_boss_names ~= nil and alt_data.undermine_boss_names[raidIndex] ~= nil then
 						raidIcon:SetScript("OnEnter", function(self)
@@ -1081,7 +1136,7 @@ function AltismManager:UpdateStrings()
 			end
 			if type(column.data) == "function" and column.enabled and column.type ~= "raidprogress" then
 				local fontPath = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf"
-				local current_row = label_columns[i] or self:CreateFontFrame(anchor_frame, perAltX, column.font_height or font_height, anchor_frame, -(i - 1) * font_height, column.data(alt_data), "CENTER", fontPath);
+				local current_row = label_columns[i] or self:CreateFontFrame(anchor_frame, C.pixelSizing.perAltX, column.font_height or font_height, anchor_frame, -(i - 1) * font_height, column.data(alt_data), "CENTER", fontPath);
 				-- insert it into storage if just created
 				if not self.main_frame.alt_columns[alt].label_columns[i] then
 					self.main_frame.alt_columns[alt].label_columns[i] = current_row;
@@ -1092,7 +1147,7 @@ function AltismManager:UpdateStrings()
 				end
 				current_row:SetText(column.data(alt_data))
 				if column.font then
-					current_row:GetFontString():SetFont(column.font, ilvlTextSize)
+					current_row:GetFontString():SetFont(column.font, C.pixelSizing.ilvlTextSize)
 				else
 					current_row:GetFontString():SetFont("Interface\\AddOns\\AltismManager\\fonts\\expressway.otf", 14)
 				end
@@ -1150,7 +1205,7 @@ function AltismManager:UpdateStrings()
 					end
 					extra:SetParent(current_row)
 					extra:SetPoint("TOPRIGHT", current_row, "TOPRIGHT", -18, 2 );
-					extra:SetPoint("BOTTOMRIGHT", current_row, "TOPRIGHT", -18, -removeButtonSize + 2);
+					extra:SetPoint("BOTTOMRIGHT", current_row, "TOPRIGHT", -18, -C.pixelSizing.removeButtonSize + 2);
 					extra:SetFrameLevel(current_row:GetFrameLevel() + 1)
 					extra:Show();
 				end
@@ -1250,21 +1305,21 @@ function AltismManager:MythicVaultSummaryString(alt_data)
 	-- local total_runs = #sorted_history
 	local result = ""
 
-	if alt_data.mythicplusvault[1] >= mythTrackKeyVaultThreshold then
+	if alt_data.mythicplusvault[1] >= C.thresholds.mythTrackKeyVault then
 			result = "|cFF00FF00" .. tostring(alt_data.mythicplusvault[1]) .. "|r"
 	elseif alt_data.mythicplusvault[1] > 0 then
 			result = tostring(alt_data.mythicplusvault[1])
 	else
 		result = result .. "|cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[2] >= mythTrackKeyVaultThreshold then
+	if alt_data.mythicplusvault[2] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[2]) .. "|r"
 	elseif alt_data.mythicplusvault[2] > 0 then
 		result = result .. " / " .. tostring(alt_data.mythicplusvault[2])
 	else
 		result = result .. " / |cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[3] >= mythTrackKeyVaultThreshold then
+	if alt_data.mythicplusvault[3] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[3]) .. "|r"
 	elseif alt_data.mythicplusvault[3] > 0 then
 		result = result .. " / " .. tostring(alt_data.mythicplusvault[2])
@@ -1282,21 +1337,21 @@ function AltismManager:DelveVaultSummaryString(alt_data)
 
 	local result = ""
 
-	if alt_data.delvevault[1] >= maxLootDelveVaultThreshold then
+	if alt_data.delvevault[1] >= C.thresholds.maxLootDelveVault then
 			result = "|cFF00FF00" .. tostring(alt_data.delvevault[1]) .. "|r"
 	elseif alt_data.delvevault[1] > 0 then
 			result = tostring(alt_data.delvevault[1])
 	else
 		result = result .. "|cFF999999X|r"
 	end
-	if alt_data.delvevault[2] >= maxLootDelveVaultThreshold then
+	if alt_data.delvevault[2] >= C.thresholds.maxLootDelveVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.delvevault[2]) .. "|r"
 	elseif alt_data.delvevault[2] > 0 then
 		result = result .. " / " .. tostring(alt_data.delvevault[2])
 	else
 		result = result .. " / |cFF999999X|r"
 	end
-	if alt_data.delvevault[3] >= maxLootDelveVaultThreshold then
+	if alt_data.delvevault[3] >= C.thresholds.maxLootDelveVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.delvevault[3]) .. "|r"
 	elseif alt_data.delvevault[3] > 0 then
 		result = result .. " / " .. tostring(alt_data.delvevault[2])
@@ -1318,7 +1373,7 @@ function AltismManager:CreateContent()
 	local column_table = {
 		name = {
 			order = 1,
-			label = nameLabel,
+			label = C.labels.name,
 			enabled = true,
 			data = function(alt_data) return alt_data.name end,
 			color = function(alt_data) return RAID_CLASS_COLORS[alt_data.class] end,
@@ -1338,16 +1393,15 @@ function AltismManager:CreateContent()
 			font = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf",
 			data = function(alt_data) return tostring(alt_data.gold or "0") end,
 		},
-		-- DelveVaultSummaryString
 		raidvault = {
 			order = 3.5,
-			label = "Raid Vault",
+			label = C.labels.raidVault,
 			enabled = AltismManagerDB.showRaidVaultEnabled,
 			data = function(alt_data) return self:RaidVaultSummaryString(alt_data) end,
 		},
 		mplusvault = {
 			order = 4,
-			label = "M+ Vault",
+			label = C.labels.mythicPlusVault,
 			enabled = AltismManagerDB.showMythicPlusVaultEnabled,
 			tooltip = function(alt_data)
 				local sorted_history = AltismManager:ProduceRelevantMythics(alt_data.run_history)
@@ -1361,19 +1415,19 @@ function AltismManager:CreateContent()
 		},
 		delvevault = {
 			order = 4.1,
-			label = "Delve Vault",
+			label = C.labels.delveVault,
 			enabled = AltismManagerDB.showDelveVaultEnabled,
 			data = function(alt_data) return self:DelveVaultSummaryString(alt_data) end,
 		},
 		keystone = {
 			order = 4.3,
-			label = mythicKeystoneLabel,
+			label = C.labels.mythicKeystone,
 			enabled = AltismManagerDB.showMythicPlusDataEnabled,
 			data = function(alt_data) return (dungeons[alt_data.dungeon] or alt_data.dungeon) .. " +" .. tostring(alt_data.level); end,
 		},
 		mplus_score = {
 			order = 4.4,
-			label = mythicPlusLabel,
+			label = C.labels.mythicPlusRating,
 			enabled = AltismManagerDB.showMythicPlusDataEnabled,
 			data = function(alt_data) return tostring(alt_data.mplus_score or "0") end,
 		},
@@ -1381,12 +1435,12 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET = {
 			order = 5,
 			label = "",
-			enabled = AltismManagerDB.showMythicPlusDataEnabled,
+			enabled = AltismManagerDB.showValorstonesEnabled or AltismManagerDB.showCofferKeysEnabled or AltismManagerDB.showSparksEnabled or AltismManagerDB.showCatalystEnabled,
 			data = function(alt_data) return " " end,
 		},
 		flightstones = {
 			order = 6,
-			label = flightstoneLabel,
+			label = C.labels.flightstones,
 			enabled = AltismManagerDB.showValorstonesEnabled,
 			data = function(alt_data)
 				if alt_data.flightstones == 2000 then
@@ -1398,7 +1452,7 @@ function AltismManager:CreateContent()
 		},
 		cofferKeys = {
 			order = 6.01,
-			label = "Coffer Keys |T4622270:16:16:0:0|t",
+			label = C.labels.cofferKeys,
 			enabled = AltismManagerDB.showCofferKeysEnabled,
 			data = function(alt_data)
 				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
@@ -1406,7 +1460,7 @@ function AltismManager:CreateContent()
 		},
 		sparks = {
 			order = 6.02,
-			label = "Sparks |T5929751:16:16:0:0|t",
+			label = C.labels.sparks,
 			enabled = AltismManagerDB.showSparksEnabled,
 			data = function(alt_data)
 				if (alt_data.currentSparks == AltismManagerDB.currentMaxSparks) then
@@ -1418,7 +1472,7 @@ function AltismManager:CreateContent()
 		},
 		catalyst = {
 			order = 6.03,
-			label = "Catalyst |T3566851:16:16:0:0|t",
+			label = C.labels.catalyst,
 			enabled = AltismManagerDB.showCatalystEnabled,
 			data = function(alt_data)
 				if (alt_data.currentCatalyst == 0) then
@@ -1432,19 +1486,13 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_3 = {
 			order = 6.04,
 			label = "",
-			enabled = AltismManagerDB.showValorstonesEnabled,
-			data = function(alt_data) return " " end,
-		},
-		UPGRADE_CREST_LABEL = {
-			order = 6.05,
-			label = "Upgrade Crests",
-			enabled = true,
+			enabled = AltismManagerDB.showWhelplingCrestEnabled or AltismManagerDB.showDrakeCrestEnabled or AltismManagerDB.showWyrmCrestEnabled or AltismManagerDB.showAspectCrestEnabled,
 			data = function(alt_data) return " " end,
 		},
 		whelplings_crest = {
 			order = 6.1,
-			label = whelplingCrestLabel,
-			enabled = true,
+			label = C.labels.whelplingCrest,
+			enabled = AltismManagerDB.showWhelplingCrestEnabled,
 			data = function(alt_data)
 				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
@@ -1458,8 +1506,8 @@ function AltismManager:CreateContent()
 		},
 		drakes_crest = {
 			order = 6.2,
-			label = drakeCrestLabel,
-			enabled = true,
+			label = C.labels.drakeCrest,
+			enabled = AltismManagerDB.showDrakeCrestEnabled,
 			data = function(alt_data)
 				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.drakes_max == alt_data.drakes_earned) then
@@ -1473,8 +1521,8 @@ function AltismManager:CreateContent()
 		},
 		wyrms_crest = {
 			order = 6.3,
-			label = wyrmCrestLabel,
-			enabled = true,
+			label = C.labels.wyrmCrest,
+			enabled = AltismManagerDB.showWyrmCrestEnabled,
 			data = function(alt_data)
 				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
@@ -1488,8 +1536,8 @@ function AltismManager:CreateContent()
 		},
 		aspects_crest = {
 			order = 6.4,
-			label = aspectCrestLabel,
-			enabled = true,
+			label = C.labels.aspectCrest,
+			enabled = AltismManagerDB.showAspectCrestEnabled,
 			data = function(alt_data)
 				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.aspects_max == alt_data.aspects_earned) then
@@ -1508,27 +1556,21 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return " " end,
 		},
-		PVP_LABEL = {
-			order = 8,
-			label = "PvP Currency",
-			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
-			data = function(alt_data) return " " end,
-		},
 		honor_points = {
 			order = 10,
-			label = honorLabel,
+			label = C.labels.honor,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return tostring(alt_data.honor_points or "?") end,
 		},
 		conquest_pts = {
 			order = 11,
-			label = conquestLabel,
+			label = C.labels.conquest,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return (alt_data.conquest_total and tostring(alt_data.conquest_total) or "0")  end,
 		},
 		conquest_cap = {
 			order = 12,
-			label = conquestEarnedLabel,
+			label = C.labels.conquestEarned,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return (alt_data.conquest_earned and (tostring(alt_data.conquest_earned) .. " / " .. C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID).maxQuantity) or "?")  end, --   .. "/" .. "500"
 		},
@@ -1536,28 +1578,22 @@ function AltismManager:CreateContent()
 		BLANK_LINE = {
 			order = 13,
 			label = " ",
-			enabled = true,
+			enabled = AltismManagerDB.showWorldBossEnabled or AltismManagerDB.showUndermineEnabled,
 			data = function(alt_data) return " " end,
 		},
-		worldbosses = {
+		worldboss = {
 			order = 13.2,
-			label = worldBossLabel,
+			label = C.labels.worldBoss,
 			enabled = AltismManagerDB.showWorldBossEnabled,
 			data = function(alt_data)
 				if alt_data.worldboss == nil then return "|cffff0000Available|r" else return "|cff00ff00Defeated|r" end 
 			end,
 		},
-		-- Undermine = {
-		-- 	order = 13.4,
-		-- 	label = "Undermine",
-		-- 	enabled = AltismManagerDB.showUndermineEnabled,
-		-- 	data = function(alt_data)return self:MakeRaidString(alt_data.undermine_normal, alt_data.undermine_heroic, alt_data.undermine_mythic) end
-		-- },
 		mythic = {
 			order = 14,
-			label = "Mythic",
+			label = C.labels.mythic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled,
+			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineMythicEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_mythic_savedata) then
 					return alt_data.raidsaves.undermine_mythic_savedata
@@ -1567,9 +1603,9 @@ function AltismManager:CreateContent()
 		},
 		heroic = {
 			order = 14.1,
-			label = "Heroic",
+			label = C.labels.heroic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled,
+			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineHeroicEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_heroic_savedata) then
 					return alt_data.raidsaves.undermine_heroic_savedata
@@ -1579,9 +1615,9 @@ function AltismManager:CreateContent()
 		},
 		normal = {
 			order = 14.2,
-			label = "Normal",
+			label = C.labels.normal,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled,
+			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineNormalEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_normal_savedata) then
 					return alt_data.raidsaves.undermine_normal_savedata
@@ -1596,27 +1632,16 @@ function AltismManager:CreateContent()
 	local font_height = 20;
 	local label_column = self.main_frame.label_column or CreateFrame("Button", nil, self.main_frame);
 	if not self.main_frame.label_column then self.main_frame.label_column = label_column; end
-	label_column:SetSize(perAltX, self:CalculateYSize());
+	label_column:SetSize(C.pixelSizing.perAltX, self:CalculateYSize());
 	label_column:SetPoint("TOPLEFT", self.main_frame, "TOPLEFT", 4, -1);
 
 	local i = 1;
 	for row_iden, row in spairs(self.columns_table, function(t, a, b) return t[a].order < t[b].order end) do
 		if row.label and row.enabled then
 			local fontPath = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf"
-			local label_row = self:CreateFontFrame(self.main_frame, perAltX, font_height, label_column, -(i-1)*font_height, row.label~="" and row.label or " ", "RIGHT", fontPath);
+			local label_row = self:CreateFontFrame(self.main_frame, C.pixelSizing.perAltX, font_height, label_column, -(i-1)*font_height, row.label~="" and row.label or " ", "RIGHT", fontPath);
 			self.main_frame.lowest_point = -(i-1)*font_height;
 		end
-		-- if row.data == "unroll" then
-		-- 	-- create a button that will unroll it
-		-- 	local unroll_button = CreateFrame("Button", "UnrollButton", self.main_frame, "UIPanelButtonTemplate");
-		-- 	unroll_button:SetText(row.name);
-		-- 	--unroll_button:SetFrameStrata("HIGH");
-		-- 	unroll_button:SetFrameLevel(self.main_frame:GetFrameLevel() + 2)
-		-- 	unroll_button:SetSize(unroll_button:GetTextWidth() + 20, 25);
-		-- 	unroll_button:SetPoint("BOTTOMRIGHT", self.main_frame, "TOPLEFT", 4 + perAltX, -(i-1)*font_height-10);
-		-- 	unroll_button:SetScript("OnClick", function() row.unroll_function(unroll_button, row.rows) end);
-		-- 	self.main_frame.lowest_point = -(i-1)*font_height-10;
-		-- end
 		if row.enabled then
 			i = i + 1
 		end
@@ -1653,7 +1678,7 @@ function AltismManager:CreateRemoveButton(func)
 	frame:ClearAllPoints()
 	frame:SetScript("OnClick", function() func() end);
 	self:MakeRemoveTexture(frame)
-	frame:SetWidth(removeButtonSize)
+	frame:SetWidth(C.pixelSizing.removeButtonSize)
 	return frame
 end
 
@@ -1855,95 +1880,6 @@ function AltismManager:TimeString(length)
 	return string.format("%d days %d hrs", length / 86400, (length % 86400) / 3600);
 end
 
-
-
---------------------------------------------------
--- Options panel (shamelessly yoinked from idTip)
---------------------------------------------------
-local panel = CreateFrame("Frame")
-panel.name = addonName
-panel:Hide()
-
-panel:SetScript("OnShow", function()
-  local function createCheckbox(label, key)
-    local checkBox = CreateFrame("CheckButton", addonName .. "Check" .. label, panel, "InterfaceOptionsCheckButtonTemplate")
-    checkBox:SetChecked(AltismManagerDB[key])
-    checkBox:HookScript("OnClick", function(self)
-      local checked = self:GetChecked()
-      AltismManagerDB[key] = checked
-    end)
-    checkBox.Text:SetText(label)
-    return checkBox
-  end
-
-  local title = panel:CreateFontString("ARTWORK", nil, "GameFontNormalLarge")
-  title:SetPoint("TOPLEFT", 16, -16)
-  title:SetText(addonName)
-
-	local subtitle = panel:CreateFontString("ARTWORK", nil, "GameFontNormalSmall")
-  subtitle:SetPoint("TOPRIGHT", -16, -16)
-  subtitle:SetText("Any changes will require a UI reload (/reload) to take effect.")
-
-  local index = 0
-  local rowHeight = 24
-  local columnWidth = 150
-  local rowNum = 10
-
-	local kinds = {
-		showGold = "Show Gold",
-		showMythicPlusData = "Show Mythic+ Data",
-		showValorstones = "Show Valorstones",
-		showPVPCurrencies = "Show PvP Currencies",
-		showWorldBoss = "Show World Bosses",
-		showUndermine = "Show Liberation of Undermine",
-		showRaidVault = "Show Raid Vault",
-		showMythicPlusVault = "Show Mythic+ Vault",
-		showDelveVault = "Show Delve Vault",
-		showRemainingCrests = "Show remaining crests to be earned up to cap",
-		showCofferKeys = "Show Coffer Keys",
-		showSparks = "Show Fractured Spark of Fortune progress",
-		showCatalyst = "Show Catalyst charges remaining",
-	}
-  local keys = {
-		"showGold",
-		"showRaidVault",
-		"showMythicPlusVault",
-		"showDelveVault",
-		"showMythicPlusData",
-		"showValorstones",
-		"showCofferKeys",
-		"showRemainingCrests",
-		"showPVPCurrencies",
-		"showWorldBoss",
-		"showUndermine",
-		"showSparks",
-		"showCatalyst",
-	}
-	-- if #keys ~= #kinds then
-	-- 	print("[Alt Manager]: Config key lengths do not match. There might be a missing config value in settings.")
-	-- end
-  -- for key in pairs(kinds) do table.insert(keys, key) end
-  -- table.sort(keys)
-
-  for _, key in pairs(keys) do
-    local checkBox = createCheckbox(kinds[key], key.."Enabled")
-    local columnIndex = math.floor(index / rowNum)
-    local offsetRight = columnIndex * columnWidth
-    local offsetUp = -(index * rowHeight) + (rowHeight * rowNum  * columnIndex) - 16
-    checkBox:SetPoint("TOPLEFT", title, "BOTTOMLEFT", offsetRight, offsetUp)
-    index = index + 1
-  end
-
-  panel:SetScript("OnShow", nil)
-end)
-
-local categoryId = nil
-if Settings and Settings.RegisterAddOnCategory and Settings.RegisterCanvasLayoutCategory then
-  local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-  categoryId = category.ID
-  Settings.RegisterAddOnCategory(category);
-end
-
 function SlashCmdList.ALTMANAGER(cmd, editbox)
 	local rqst, arg = strsplit(' ', cmd)
 	
@@ -1954,7 +1890,10 @@ function SlashCmdList.ALTMANAGER(cmd, editbox)
 			print("   \"/alts remove name\" to remove characters by name.")
 			print("   \"/alts mm\" to toggle the minimap button visibility.")
 	elseif rqst == "config" then
-		Settings.OpenToCategory(categoryId)
+		if not AltismManager.settingsCategory then
+			print("[Alt Manager] Config panel was not initialized. Try /reload-ing and report the issue if it persists.")
+		end
+		Settings.OpenToCategory(AltismManager.settingsCategory.ID)
 	elseif rqst == "purge" then
 			AltismManager:Purge()
 	elseif rqst == "remove" then
