@@ -3,7 +3,7 @@ _G["AltismManager"] = AltismManager;
 local Dialog = LibStub("LibDialog-1.0")
 
 -- CONSTANTS
-local sizeY = 590;
+local sizeY = 620;
 local pvpToggleSize = 90;
 local undermineToggleSize = 30;
 local worldBossToggleSize = 30;
@@ -15,6 +15,7 @@ local delveVaultToggleSize = 30;
 local cofferKeysToggleSize = 30;
 local mythicPlusToggleSize = 90;
 local sparkToggleSize = 30;
+local catalystToggleSize = 30;
 
 local offsetX = 0;
 local offsetY = 40;
@@ -86,7 +87,7 @@ end
 do
 	local main_frame = CreateFrame("frame", nil, UIParent)
 	AltismManager.main_frame = main_frame
-	main_frame:SetFrameStrata("MEDIUM")
+	main_frame:SetFrameStrata("DIALOG")
 	main_frame.background = main_frame:CreateTexture(nil, "BACKGROUND")
 	main_frame.background:SetAllPoints()
 	main_frame.background:SetDrawLayer("ARTWORK", 1)
@@ -208,6 +209,9 @@ function AltismManager:CalculateYSize()
 		if not AltismManagerDB.showSparksEnabled then
 			modifiedSize = modifiedSize - sparkToggleSize;
 		end
+		if not AltismManagerDB.showCatalystEnabled then
+			modifiedSize = modifiedSize - catalystToggleSize;
+		end
 	end
 	return modifiedSize
 end
@@ -258,6 +262,7 @@ function AltismManager:AddMissingPostReleaseFields()
 	AltismManager:AddMissingField("showWorldBossEnabled", true)
 	AltismManager:AddMissingField("showUndermineEnabled", true)
 	AltismManager:AddMissingField("showSparksEnabled", true)
+	AltismManager:AddMissingField("showCatalystEnabled", true)
 end
 
 function AltismManager:OnLoad()
@@ -949,6 +954,10 @@ function AltismManager:CollectData()
 	char_table.currentSparks = currentSparks;
 	AltismManagerDB.currentMaxSparks = maxSparks;
 
+	local catalystData = C_CurrencyInfo.GetCurrencyInfo(3116)
+	local currentCatalyst = catalystData.quantity;
+	char_table.currentCatalyst = currentCatalyst;
+
 	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(84736)
 	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(84737)
 	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(84738)
@@ -1058,14 +1067,16 @@ function AltismManager:UpdateStrings()
 					);
 					raidIcon:SetSize(((perAltX - 10) / 8) - 6, font_height - 6);
 					raidIcon:SetDrawLayer("ARTWORK", 7);
-					raidIcon:SetScript("OnEnter", function(self)
-						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-						GameTooltip:AddLine(alt_data.undermine_boss_names[raidIndex])
-						GameTooltip:Show()
-					end)
-					raidIcon:SetScript("OnLeave", function(self)
-						GameTooltip:Hide()
-					end)
+					if alt_data.undermine_boss_names ~= nil and alt_data.undermine_boss_names[raidIndex] ~= nil then
+						raidIcon:SetScript("OnEnter", function(self)
+							GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+							GameTooltip:AddLine(alt_data.undermine_boss_names[raidIndex])
+							GameTooltip:Show()
+						end)
+						raidIcon:SetScript("OnLeave", function(self)
+							GameTooltip:Hide()
+						end)
+					end
 				end
 			end
 			if type(column.data) == "function" and column.enabled and column.type ~= "raidprogress" then
@@ -1402,6 +1413,18 @@ function AltismManager:CreateContent()
 					return "|cFF39ec3c" .. tostring(alt_data.currentSparks or "?") .. " / " .. (AltismManagerDB.currentMaxSparks or "?") .. "|r"
 				else 
 					return tostring(alt_data.currentSparks or "?") .. " / " .. (AltismManagerDB.currentMaxSparks or "?")
+				end
+			end,
+		},
+		catalyst = {
+			order = 6.03,
+			label = "Catalyst |T3566851:16:16:0:0|t",
+			enabled = AltismManagerDB.showCatalystEnabled,
+			data = function(alt_data)
+				if (alt_data.currentCatalyst == 0) then
+					return "|cFFec393c" .. tostring(alt_data.currentCatalyst or "?") .. "|r"
+				else 
+					return tostring(alt_data.currentCatalyst or "?")
 				end
 			end,
 		},
@@ -1879,6 +1902,7 @@ panel:SetScript("OnShow", function()
 		showRemainingCrests = "Show remaining crests to be earned up to cap",
 		showCofferKeys = "Show Coffer Keys",
 		showSparks = "Show Fractured Spark of Fortune progress",
+		showCatalyst = "Show Catalyst charges remaining",
 	}
   local keys = {
 		"showGold",
@@ -1893,6 +1917,7 @@ panel:SetScript("OnShow", function()
 		"showWorldBoss",
 		"showUndermine",
 		"showSparks",
+		"showCatalyst",
 	}
 	-- if #keys ~= #kinds then
 	-- 	print("[Alt Manager]: Config key lengths do not match. There might be a missing config value in settings.")
