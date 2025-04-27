@@ -8,7 +8,7 @@ C.thresholds = {
 }
 
 C.pixelSizing = {
-  baseWindowSize = 570,
+  baseWindowSize = 630,
   offsetX = 0,
   offsetY = 40,
   perAltX = 150,
@@ -28,9 +28,12 @@ C.toggles = {
   mythicPlus = TraditionalRowValue * 2,
 
   valorstones = TraditionalRowValue,
-  cofferKeys = TraditionalRowValue,
   spark = TraditionalRowValue,
   catalyst = TraditionalRowValue,
+
+  cofferKeys = TraditionalRowValue,
+  currentCofferKeys = TraditionalRowValue,
+  delverBounty = TraditionalRowValue,
   
   whelpling = TraditionalRowValue,
   drake = TraditionalRowValue,
@@ -56,9 +59,12 @@ C.labels = {
   mythicPlusRating = "Mythic+ Rating",
   
   flightstones = "Valorstones |T5868902:16:16:0:0|t",
-  cofferKeys = "Coffer Keys |T4622270:16:16:0:0|t",
   sparks = "Sparks |T5929751:16:16:0:0|t",
   catalyst = "Catalyst |T3566851:16:16:0:0|t",
+
+  cofferKeys = "Weekly Coffer Keys",
+  currentCofferKeys = "Coffer Keys |T4622270:16:16:0:0|t",
+  delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
 
   upgradeCrests = "Upgrade Crests",
   whelplingCrest = "Weathered |T5872053:16:16:0:0|t",
@@ -86,9 +92,12 @@ C.configLabels = {
   showMythicPlusDataEnabled = "Show M+ Keystone/Rating",
   
   showValorstonesEnabled = "Show Valorstones",
-  showCofferKeysEnabled = "Show Coffer Keys",
   showSparksEnabled = "Show Fractured Spark of Fortune progress",
   showCatalystEnabled = "Show Catalyst charges remaining",
+
+  showCofferKeysEnabled = "Show Weekly Coffer Keys earned",
+  showCurrentCofferKeysEnabled = "Show Owned Coffer Keys",
+  showDelversBountyEnabled = "Show Delver's Bounty completion",
 
   showRemainingCrestsEnabled = "Show remaining crests to be earned up to cap",
   showWhelplingCrestEnabled = "Show Weathered Crests",

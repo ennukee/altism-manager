@@ -165,7 +165,7 @@ function AltismManager:CalculateYSize()
 		end
 
 		-- Vault -> Valorstone Gap
-		if not AltismManagerDB.showValorstonesEnabled and not AltismManagerDB.showCofferKeysEnabled and not AltismManagerDB.showSparksEnabled and not AltismManagerDB.showCatalystEnabled then
+		if not AltismManagerDB.showValorstonesEnabled and not AltismManagerDB.showSparksEnabled and not AltismManagerDB.showCatalystEnabled then
 			modifiedSize = modifiedSize - C.toggles.gap;
 		end
 	
@@ -173,14 +173,28 @@ function AltismManager:CalculateYSize()
 		if not AltismManagerDB.showValorstonesEnabled then
 			modifiedSize = modifiedSize - C.toggles.valorstones;
 		end
-		if not AltismManagerDB.showCofferKeysEnabled then
-			modifiedSize = modifiedSize - C.toggles.cofferKeys;
-		end
+		
 		if not AltismManagerDB.showSparksEnabled then
 			modifiedSize = modifiedSize - C.toggles.spark;
 		end
 		if not AltismManagerDB.showCatalystEnabled then
 			modifiedSize = modifiedSize - C.toggles.catalyst;
+		end
+
+		-- Valorstone -> Delve Gap
+		if not AltismManagerDB.showCofferKeysEnabled and not AltismManagerDB.showCurrentCofferKeysEnabled and not AltismManagerDB.showDelversBountyEnabled then
+			modifiedSize = modifiedSize - C.toggles.gap;
+		end
+
+		-- Delve section
+		if not AltismManagerDB.showCofferKeysEnabled then
+			modifiedSize = modifiedSize - C.toggles.cofferKeys;
+		end
+		if not AltismManagerDB.showCurrentCofferKeysEnabled then
+			modifiedSize = modifiedSize - C.toggles.currentCofferKeys;
+		end
+		if not AltismManagerDB.showDelversBountyEnabled then
+			modifiedSize = modifiedSize - C.toggles.delverBounty;
 		end
 
 		-- Valorstone -> Crest Gap
@@ -289,11 +303,15 @@ function AltismManager:AddMissingPostReleaseFields()
 	AltismManager:AddMissingField("showDelveVaultEnabled", true)
 	AltismManager:AddMissingField("showMythicPlusDataEnabled", true)
 
-	-- Valorstone seciton
+	-- Valorstone section
 	AltismManager:AddMissingField("showValorstonesEnabled", true)
-	AltismManager:AddMissingField("showCofferKeysEnabled", true)
 	AltismManager:AddMissingField("showSparksEnabled", true)
 	AltismManager:AddMissingField("showCatalystEnabled", true)
+	
+	-- Delve section
+	AltismManager:AddMissingField("showCofferKeysEnabled", false)
+	AltismManager:AddMissingField("showCurrentCofferKeysEnabled", false)
+	AltismManager:AddMissingField("showDelversBountyEnabled", false)
 
 	-- Upgrade crests section
 	AltismManager:AddMissingField("showRemainingCrestsEnabled", true)
@@ -545,23 +563,6 @@ minimapButton:SetScript("OnEvent", function(self, event)
     end
 end)
 
---[[
-function AltismManager:CreateFontFrame(parent, x_size, height, relative_to, y_offset, label, justify)
-	local f = CreateFrame("Button", nil, parent);
-	f:SetSize(x_size, height);
-	f:SetNormalFontObject("GameFontHighlightSmall")
-	f:SetText(label)
-	f:SetPoint("TOPLEFT", relative_to, "TOPLEFT", 0, y_offset);
-	f:GetFontString():SetJustifyH(justify);
-	f:GetFontString():SetJustifyV("MIDDLE");
-	f:SetPushedTextOffset(0, 0);
-	f:GetFontString():SetWidth(120)
-	f:GetFontString():SetHeight(20)
-
-	return f;
-end
-]]
-
 function AltismManager:CreateFontFrame(parent, x_size, height, relative_to, y_offset, label, justify, fontPath)
     local f = CreateFrame("Button", nil, parent)
     f:SetSize(x_size, height)
@@ -632,6 +633,8 @@ function AltismManager:ResetCharTable(char_table)
 	char_table.raidvault = nil;
 	char_table.mythicplusvault = nil;
 	char_table.delvevault = nil;
+	char_table.cofferKeysObtained = 0;
+	char_table.delversBountyClaimed = false;
 end
 
 function AltismManager:Purge()
@@ -1027,6 +1030,9 @@ function AltismManager:CollectData()
 			return 0
 		end
 	end
+
+	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(3028).quantity;
+	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(86371);
 	
 	char_table.guid = UnitGUID('player');
 	char_table.name = name;
@@ -1435,11 +1441,11 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET = {
 			order = 5,
 			label = "",
-			enabled = AltismManagerDB.showValorstonesEnabled or AltismManagerDB.showCofferKeysEnabled or AltismManagerDB.showSparksEnabled or AltismManagerDB.showCatalystEnabled,
+			enabled = AltismManagerDB.showValorstonesEnabled or AltismManagerDB.showSparksEnabled or AltismManagerDB.showCatalystEnabled,
 			data = function(alt_data) return " " end,
 		},
 		flightstones = {
-			order = 6,
+			order = 5.1,
 			label = C.labels.flightstones,
 			enabled = AltismManagerDB.showValorstonesEnabled,
 			data = function(alt_data)
@@ -1450,16 +1456,8 @@ function AltismManager:CreateContent()
 				end
 			end,
 		},
-		cofferKeys = {
-			order = 6.01,
-			label = C.labels.cofferKeys,
-			enabled = AltismManagerDB.showCofferKeysEnabled,
-			data = function(alt_data)
-				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
-			end,
-		},
 		sparks = {
-			order = 6.02,
+			order = 5.2,
 			label = C.labels.sparks,
 			enabled = AltismManagerDB.showSparksEnabled,
 			data = function(alt_data)
@@ -1471,7 +1469,7 @@ function AltismManager:CreateContent()
 			end,
 		},
 		catalyst = {
-			order = 6.03,
+			order = 5.3,
 			label = C.labels.catalyst,
 			enabled = AltismManagerDB.showCatalystEnabled,
 			data = function(alt_data)
@@ -1480,6 +1478,40 @@ function AltismManager:CreateContent()
 				else 
 					return tostring(alt_data.currentCatalyst or "?")
 				end
+			end,
+		},
+		-- ! Offset
+		FAKE_FOR_OFFSET_delve = {
+			order = 6.011,
+			label = "",
+			enabled = AltismManagerDB.showCofferKeysEnabled or AltismManagerDB.showCurrentCofferKeysEnabled or AltismManagerDB.showDelversBountyEnabled,
+			data = function(alt_data) return " " end,
+		},
+		cofferKeys = {
+			order = 6.012,
+			label = C.labels.cofferKeys,
+			enabled = AltismManagerDB.showCofferKeysEnabled,
+			data = function(alt_data)
+				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
+			end,
+		},
+		currentCofferKeys = {
+			order = 6.012,
+			label = C.labels.currentCofferKeys,
+			enabled = AltismManagerDB.showCurrentCofferKeysEnabled,
+			data = function(alt_data)
+				return tostring(alt_data.currentCofferKeys or "?")
+			end,
+		},
+		delversBounty = {
+			order = 6.013,
+			label = C.labels.delversBounty,
+			enabled = AltismManagerDB.showDelversBountyEnabled,
+			data = function(alt_data)
+				if (alt_data.delversBountyClaimed == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.delversBountyClaimed and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
 		-- ! Offset

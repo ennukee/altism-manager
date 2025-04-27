@@ -51,6 +51,31 @@ frame:SetScript("OnShow", function()
   subtitle:SetPoint("TOPRIGHT", -16, -16)
   subtitle:SetText("Any changes will require a UI reload (/reload) to take effect.")
 
+  -- ! Reload button next to the title
+  local reloadButton = CreateFrame("Button", "AMReloadButton", frame)
+  reloadButton:SetSize(16, 16)
+  reloadButton:SetPoint("TOPRIGHT", title, 22, 0)
+
+  local texture = reloadButton:CreateTexture(nil, "ARTWORK")
+  texture:SetAllPoints()
+  texture:SetTexture("Interface\\Buttons\\UI-RefreshButton")
+  reloadButton.texture = texture
+
+  reloadButton:SetScript("OnClick", function()
+      ReloadUI()
+  end)
+
+  reloadButton:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText("Reload UI")
+    GameTooltip:Show()
+  end)
+
+  reloadButton:SetScript("OnLeave", function(self)
+    GameTooltip:Hide()
+  end)
+  -- ! End reload button creation
+
   local columnWidth = 250;
   local rowHeight = 30;
   ---------------------
@@ -85,7 +110,6 @@ frame:SetScript("OnShow", function()
   ------------------------
   -- Valorstone Section --
   ------------------------
-
   local valorstoneSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
   valorstoneSection:SetPoint("BOTTOMLEFT", vaultSection, 0, -(rowHeight * 3))
   valorstoneSection:SetText("Valorstone Section")
@@ -93,20 +117,33 @@ frame:SetScript("OnShow", function()
   local showValorstones = createCheckbox("showValorstonesEnabled")
   showValorstones:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", 0, -8)
 
-  local showCofferKeys = createCheckbox("showCofferKeysEnabled")
-  showCofferKeys:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", columnWidth, -8)
-
   local showSparks = createCheckbox("showSparksEnabled")
   showSparks:SetPoint("TOPLEFT", showValorstones, "BOTTOMLEFT", 0, -2)
 
   local showCatalyst = createCheckbox("showCatalystEnabled")
-  showCatalyst:SetPoint("TOPLEFT", showCofferKeys, "BOTTOMLEFT", 0, -2)
+  showCatalyst:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", columnWidth, -8)
+
+  -------------------
+  -- Delve Section --
+  -------------------
+  local delveSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
+  delveSection:SetPoint("BOTTOMLEFT", valorstoneSection, 0, -(rowHeight * 3))
+  delveSection:SetText("Delve Section")
+
+  local showCofferKeys = createCheckbox("showCofferKeysEnabled")
+  showCofferKeys:SetPoint("TOPLEFT", delveSection, "BOTTOMLEFT", 0, -8)
+
+  local showCurrentCofferKeys = createCheckbox("showCurrentCofferKeysEnabled")
+  showCurrentCofferKeys:SetPoint("TOPLEFT", delveSection, "BOTTOMLEFT", columnWidth, -8);
+
+  local showDelversBounty = createCheckbox("showDelversBountyEnabled")
+  showDelversBounty:SetPoint("TOPLEFT", showCofferKeys, "BOTTOMLEFT", 0, -2)
 
   ---------------------------
   -- Upgrade Crest Section --
   ---------------------------
   local upgradeCrestSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  upgradeCrestSection:SetPoint("BOTTOMLEFT", valorstoneSection, 0, -(rowHeight * 3))
+  upgradeCrestSection:SetPoint("BOTTOMLEFT", delveSection, 0, -(rowHeight * 3))
   upgradeCrestSection:SetText("Upgrade Crest Section")
 
   local showRemainingCrests = createCheckbox("showRemainingCrestsEnabled")
