@@ -180,6 +180,9 @@ function AltismManager:CalculateYSize()
 		if not AltismManagerDB.showCatalystEnabled then
 			modifiedSize = modifiedSize - C.toggles.catalyst;
 		end
+		if not AltismManagerDB.showAlgariTokensOfMeritEnabled then
+			modifiedSize = modifiedSize - C.toggles.algariTokensOfMerit;
+		end
 
 		-- Valorstone -> Delve Gap
 		if not AltismManagerDB.showCofferKeysEnabled and not AltismManagerDB.showCurrentCofferKeysEnabled and not AltismManagerDB.showDelversBountyEnabled then
@@ -307,6 +310,7 @@ function AltismManager:AddMissingPostReleaseFields()
 	AltismManager:AddMissingField("showValorstonesEnabled", true)
 	AltismManager:AddMissingField("showSparksEnabled", true)
 	AltismManager:AddMissingField("showCatalystEnabled", true)
+	AltismManager:AddMissingField("showAlgariTokensOfMeritEnabled", true)
 	
 	-- Delve section
 	AltismManager:AddMissingField("showCofferKeysEnabled", false)
@@ -849,12 +853,20 @@ function AltismManager:CollectData()
 
 	-- find keystone
 	local keystone_found = false;
+	local algariTokensOfMerit = 0;
 	for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+		if (keystone_found and algariTokensOfMerit > 0) then break end
+
 		for slot=1, C_Container.GetContainerNumSlots(bag) do
+			if (keystone_found and algariTokensOfMerit > 0) then break end
+
 			local containerInfo = C_Container.GetContainerItemInfo(bag, slot)
 			if containerInfo ~= nil then
 				local slotItemID = containerInfo.itemID
 				local slotLink = containerInfo.hyperlink
+				if slotItemID == 230793 then
+					algariTokensOfMerit = containerInfo.stackCount or 0
+				end
 				if slotItemID == 180653 then
 					local itemString = slotLink:match("|Hkeystone:([0-9:]+)|h(%b[])|h")
 					local info = { strsplit(":", itemString) }
@@ -863,7 +875,6 @@ function AltismManager:CollectData()
 					level = tonumber(info[3])
 					if not level then level = nil end
 					keystone_found = true;
-					break -- Exit the loop after finding the keystone
 				end
 			end
 		end
@@ -876,6 +887,8 @@ function AltismManager:CollectData()
 
 	-- Define the savedata file
 	local char_table = {}
+	char_table.algariTokensOfMerit = algariTokensOfMerit
+
 	char_table.raidsaves = {}
 
 	local saves = GetNumSavedInstances();
@@ -1159,37 +1172,6 @@ function AltismManager:UpdateStrings()
 				end
 				if column.justify then
 					current_row:GetFontString():SetJustifyV(column.justify);
-				end
-
-				local function tooltipSetup(label, bossesKilled, totalBossData)
-					if (bossesKilled and bossesKilled > 0) then
-						GameTooltip:AddLine(label)
-
-						for bossIndex, bossKilled in spairs(totalBossData) do
-							if bossKilled then
-								GameTooltip:AddDoubleLine(alt_data.undermine_boss_names[bossIndex], "Defeated", 1, 1, 1, 1, 0, 0)
-							else
-								GameTooltip:AddDoubleLine(alt_data.undermine_boss_names[bossIndex], "Available", 1, 1, 1, 0, 1, 0)
-							end
-						end
-
-						GameTooltip:AddLine(" ")
-					end
-				end
-				
-				if column.label == "Undermine" and alt_data.raidsaves then
-					current_row:SetScript("OnEnter", function(self)
-						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-						GameTooltip:AddLine("Undermine Palace Raid Lockouts")
-						GameTooltip:AddLine(" ")
-						tooltipSetup("Normal", alt_data.undermine_normal, alt_data.raidsaves.undermine_normal_savedata)
-						tooltipSetup("Heroic", alt_data.undermine_heroic, alt_data.raidsaves.undermine_heroic_savedata)
-						tooltipSetup("Mythic", alt_data.undermine_mythic, alt_data.raidsaves.undermine_mythic_savedata)
-						GameTooltip:Show()
-					end)
-					current_row:SetScript("OnLeave", function(self)
-						GameTooltip:Hide()
-					end)
 				end
 
 				if column.tooltip then
@@ -1478,6 +1460,14 @@ function AltismManager:CreateContent()
 				else 
 					return tostring(alt_data.currentCatalyst or "?")
 				end
+			end,
+		},
+		algariTokensOfMerit = {
+			order = 5.4,
+			label = C.labels.algariTokensOfMerit,
+			enabled = AltismManagerDB.showAlgariTokensOfMeritEnabled,
+			data = function(alt_data)
+				return tostring(alt_data.algariTokensOfMerit or "?")
 			end,
 		},
 		-- ! Offset

@@ -8,7 +8,7 @@ C.thresholds = {
 }
 
 C.pixelSizing = {
-  baseWindowSize = 630,
+  baseWindowSize = 650,
   offsetX = 0,
   offsetY = 40,
   perAltX = 150,
@@ -30,6 +30,7 @@ C.toggles = {
   valorstones = TraditionalRowValue,
   spark = TraditionalRowValue,
   catalyst = TraditionalRowValue,
+  algariTokensOfMerit = TraditionalRowValue,
 
   cofferKeys = TraditionalRowValue,
   currentCofferKeys = TraditionalRowValue,
@@ -61,6 +62,7 @@ C.labels = {
   flightstones = "Valorstones |T5868902:16:16:0:0|t",
   sparks = "Sparks |T5929751:16:16:0:0|t",
   catalyst = "Catalyst |T3566851:16:16:0:0|t",
+  algariTokensOfMerit = "Vault Tokens |T2744751:16:16:0:0|t",
 
   cofferKeys = "Weekly Coffer Keys",
   currentCofferKeys = "Coffer Keys |T4622270:16:16:0:0|t",
@@ -94,6 +96,7 @@ C.configLabels = {
   showValorstonesEnabled = "Show Valorstones",
   showSparksEnabled = "Show Fractured Spark of Fortune progress",
   showCatalystEnabled = "Show Catalyst charges remaining",
+  showAlgariTokensOfMeritEnabled = "Show Algari Tokens of Merit",
 
   showCofferKeysEnabled = "Show Weekly Coffer Keys earned",
   showCurrentCofferKeysEnabled = "Show Owned Coffer Keys",
@@ -115,6 +118,7 @@ C.configLabels = {
 }
 
 C.configTooltips = {
+  showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
   showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
 }
 

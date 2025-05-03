@@ -123,6 +123,9 @@ frame:SetScript("OnShow", function()
   local showCatalyst = createCheckbox("showCatalystEnabled")
   showCatalyst:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", columnWidth, -8)
 
+  local showAlgariTokensOfMerit = createCheckbox("showAlgariTokensOfMeritEnabled")
+  showAlgariTokensOfMerit:SetPoint("TOPLEFT", showCatalyst, "BOTTOMLEFT", 0, -2)
+
   -------------------
   -- Delve Section --
   -------------------
