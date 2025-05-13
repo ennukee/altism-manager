@@ -120,6 +120,7 @@ C.configLabels = {
 C.configTooltips = {
   showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
   showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
+  showRemainingCrestsEnabled = "This does NOTHING if crests are uncapped (e.g. after May 13th)",
 }
 
 C.misc = {
@@ -129,3 +130,21 @@ C.misc = {
 
 
 addon.C = C
+
+
+C.classSpells = {
+  WARRIOR = 355, -- Taunt
+  PALADIN = 62124, -- Hand of Reckoning
+  MAGE = 108853, -- Fire Blast
+  EVOKER = 361469, -- Living Flame
+  DEMONHUNTER = 185123, -- Throw Glaive
+  DRUID = 5176, -- Wrath
+  MONK = 115546, -- Provoke
+  PRIEST = 589, -- SW:P
+  ROGUE = 36554, -- Poisoned Knife
+  SHAMAN = 188389, -- Lightning Bolt
+  DEATHKNIGHT = 49576, -- Death Grip
+
+  HUNTER = 193455, -- Cobra Shot
+  WARLOCK = 686, -- Shadow Bolt
+}
