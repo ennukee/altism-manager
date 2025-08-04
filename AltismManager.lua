@@ -773,7 +773,7 @@ local dungeons = {
 	-- [244] = "AD",
 	-- [245] = "FH",
 	-- [246] = "TD",
-	[247] = "ML",
+	-- [247] = "ML",
 	-- [248] = "WCM",
 	-- [249] = "KR",
 	-- [250] = "Seth",
@@ -781,18 +781,18 @@ local dungeons = {
 	-- [252] = "SotS",
 	--[353] = "SoB",
 	--[369] = "YARD",
-	[370] = "WORK",
+	-- [370] = "WORK",
 	-- Shadowlands
 	--[375] = "MoTS",
 	--[376] = "NW",
 	-- [377] = "DOS",
-	-- [378] = "HoA",
+	[378] = "HoA", -- Halls of Atonement
 	-- [379] = "PF",
 	-- [380] = "SD",
 	-- [381] = "SoA",
-	[382] = "ToP",
-	-- [391] = "STRT",
-	-- [392] = "GMBT",
+	-- [382] = "ToP",
+	[391] = "STRT", -- Tazavesh: Streets
+	[392] = "GMBT", -- Tazavesh: Gambit
 	-- Dragonflight
 	-- [399] = "RLP",
 	-- [400] = "NO",
@@ -806,14 +806,15 @@ local dungeons = {
 	-- [464] = "RISE",
 	-- The War Within
 	[499] = "PSF", -- Priory of the Sacred Flame
-	[500] = "ROOK", -- The Rookery
+	-- [500] = "ROOK", -- The Rookery
 	--[501] = "SV", -- The Stonevault
 	--[502] = "COT", -- City of Threads
-	--[503] = "ARAK", -- Ara-Kara, City of Echoes
-	[504] = "DFC", -- Darkflame Cleft
-	--[505] = "DAWN", -- The Dawnbreaker
-	[506] = "BREW", -- Cinderbrew Meadery
+	[503] = "ARAK", -- Ara-Kara, City of Echoes
+	-- [504] = "DFC", -- Darkflame Cleft
+	[505] = "DAWN", -- The Dawnbreaker
+	-- [506] = "BREW", -- Cinderbrew Meadery
 	[525] = "FLOOD", -- Operation: Floodgate
+	[542] = "ECO" -- Eco-Dome Al'dani
 };
 
 function AltismManager:CollectData()
@@ -902,10 +903,10 @@ function AltismManager:CollectData()
 		[13] = 'X',
 		[0] = 'X'
 	}
-	local undermineMapName = C_Map.GetMapInfo(2406).name
+	local undermineMapName = C_Map.GetMapInfo(C.ids.raid).name
 	if (self:GetRegion() == "US") then
 		-- Undermine !== Liberation of Undermine VeryMad
-		undermineMapName = "Liberation of Undermine"
+		undermineMapName = "Manaforge Omega"
 	end
 	-- /run local mapID = C_Map.GetBestMapForUnit("player"); print(format("You are in %s (%d)", C_Map.GetMapInfo(mapID).name, mapID))
 	for i = 1, saves do
@@ -990,7 +991,7 @@ function AltismManager:CollectData()
 
 	-- this is how the official pvp ui does it, so if its wrong.. sue me
 	-- based
-	local relevantWorldBossID = 85088 -- Gobfather
+	local relevantWorldBossID = C.ids.worldBoss -- Reshanor
 	local worldBossKilled = C_QuestLog.IsQuestFlaggedCompleted(relevantWorldBossID)
 
 	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID);
@@ -1000,20 +1001,20 @@ function AltismManager:CollectData()
 
 	local _, ilevel = GetAverageItemLevel();
 	local gold = GetMoneyString(GetMoney(), true)
-	local whelplings_crest = GetCurrencyAmount(3107);
-	local whelplings_info = C_CurrencyInfo.GetCurrencyInfo(3107);
+	local whelplings_crest = GetCurrencyAmount(C.ids.weathered_crest);
+	local whelplings_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.weathered_crest);
 	local whelplings_max = whelplings_info.maxQuantity;
 	local whelplings_earned = whelplings_info.totalEarned;
-	local drakes_crest = GetCurrencyAmount(3108);
-	local drakes_info = C_CurrencyInfo.GetCurrencyInfo(3108);
+	local drakes_crest = GetCurrencyAmount(C.ids.carved_crest);
+	local drakes_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.carved_crest);
 	local drakes_max = drakes_info.maxQuantity;
 	local drakes_earned = drakes_info.totalEarned;
-	local wyrms_crest = GetCurrencyAmount(3109);
-	local wyrms_info = C_CurrencyInfo.GetCurrencyInfo(3109);
+	local wyrms_crest = GetCurrencyAmount(C.ids.runed_crest);
+	local wyrms_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.runed_crest);
 	local wyrms_max = wyrms_info.maxQuantity;
 	local wyrms_earned = wyrms_info.totalEarned;
-	local aspects_crest = GetCurrencyAmount(3110);
-	local aspects_info = C_CurrencyInfo.GetCurrencyInfo(3110);
+	local aspects_crest = GetCurrencyAmount(C.ids.gilded_crest);
+	local aspects_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.gilded_crest);
 	local aspects_max = aspects_info.maxQuantity;
 	local aspects_earned = aspects_info.totalEarned;
 	local honor_points = GetCurrencyAmount(1792);
@@ -1021,21 +1022,21 @@ function AltismManager:CollectData()
 	local mplus_data = C_PlayerInfo.GetPlayerMythicPlusRatingSummary('player')
 	local mplus_score = mplus_data.currentSeasonScore
 
-	local sparkData = C_CurrencyInfo.GetCurrencyInfo(3132);
+	local sparkData = C_CurrencyInfo.GetCurrencyInfo(C.ids.spark);
 	local currentSparks = sparkData.quantity;
 	local maxSparks = sparkData.maxQuantity;
 	char_table.currentSparks = currentSparks;
 	AltismManagerDB.currentMaxSparks = maxSparks;
 
-	local catalystData = C_CurrencyInfo.GetCurrencyInfo(3116)
+	local catalystData = C_CurrencyInfo.GetCurrencyInfo(C.ids.catalyst)
 	local currentCatalyst = catalystData.quantity;
 	char_table.currentCatalyst = currentCatalyst;
 
-	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(84736)
-	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(84737)
-	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(84738)
-	local cofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(84739)
-	
+	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer1)
+	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer2)
+	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer3)
+	local cofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer4)
+
 	local function b2n(bool)
 		if bool then
 			return 1
@@ -1044,9 +1045,9 @@ function AltismManager:CollectData()
 		end
 	end
 
-	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(3028).quantity;
-	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(86371);
-	
+	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeys).quantity;
+	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(C.ids.delversBounty);
+
 	char_table.guid = UnitGUID('player');
 	char_table.name = name;
 	char_table.class = class;
@@ -1516,13 +1517,13 @@ function AltismManager:CreateContent()
 			label = C.labels.whelplingCrest,
 			enabled = AltismManagerDB.showWhelplingCrestEnabled,
 			data = function(alt_data)
-				-- if (AltismManagerDB.showRemainingCrestsEnabled) then
-				-- 	if (alt_data.whelplings_max == alt_data.whelplings_earned) then
-				-- 		return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
-				-- 	else 
-				-- 		return tostring(alt_data.whelplings_crest or "?").." |cffcccccc(+"..(alt_data.whelplings_max - alt_data.whelplings_earned)..")|r"
-				-- 	end
-				-- end
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
+					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
+						return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
+					else 
+						return tostring(alt_data.whelplings_crest or "?").." |cffcccccc(+"..(alt_data.whelplings_max - alt_data.whelplings_earned)..")|r"
+					end
+				end
 				return tostring(alt_data.whelplings_crest or "?")
 			end,
 		},
@@ -1531,13 +1532,13 @@ function AltismManager:CreateContent()
 			label = C.labels.drakeCrest,
 			enabled = AltismManagerDB.showDrakeCrestEnabled,
 			data = function(alt_data)
-				-- if (AltismManagerDB.showRemainingCrestsEnabled) then
-				-- 	if (alt_data.drakes_max == alt_data.drakes_earned) then
-				-- 		return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
-				-- 	else 
-				-- 		return tostring(alt_data.drakes_crest or "?").." |cffcccccc(+"..(alt_data.drakes_max - alt_data.drakes_earned)..")|r"
-				-- 	end
-				-- end
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
+					if (alt_data.drakes_max == alt_data.drakes_earned) then
+						return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
+					else 
+						return tostring(alt_data.drakes_crest or "?").." |cffcccccc(+"..(alt_data.drakes_max - alt_data.drakes_earned)..")|r"
+					end
+				end
 				return tostring(alt_data.drakes_crest or "?")
 			end,
 		},
@@ -1546,13 +1547,13 @@ function AltismManager:CreateContent()
 			label = C.labels.wyrmCrest,
 			enabled = AltismManagerDB.showWyrmCrestEnabled,
 			data = function(alt_data)
-				-- if (AltismManagerDB.showRemainingCrestsEnabled) then
-				-- 	if (alt_data.wyrms_max == alt_data.wyrms_earned) then
-				-- 		return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
-				-- 	else 
-				-- 		return tostring(alt_data.wyrms_crest or "?").." |cffcccccc(+"..(alt_data.wyrms_max - alt_data.wyrms_earned)..")|r"
-				-- 	end
-				-- end
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
+					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
+						return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
+					else 
+						return tostring(alt_data.wyrms_crest or "?").." |cffcccccc(+"..(alt_data.wyrms_max - alt_data.wyrms_earned)..")|r"
+					end
+				end
 				return tostring(alt_data.wyrms_crest or "?")
 			end,
 		},
@@ -1561,13 +1562,13 @@ function AltismManager:CreateContent()
 			label = C.labels.aspectCrest,
 			enabled = AltismManagerDB.showAspectCrestEnabled,
 			data = function(alt_data)
-				-- if (AltismManagerDB.showRemainingCrestsEnabled) then
-				-- 	if (alt_data.aspects_max == alt_data.aspects_earned) then
-				-- 		return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
-				-- 	else 
-				-- 		return tostring(alt_data.aspects_crest or "?").." |cffcccccc(+"..(alt_data.aspects_max - alt_data.aspects_earned)..")|r"
-				-- 	end
-				-- end
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
+					if (alt_data.aspects_max == alt_data.aspects_earned) then
+						return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
+					else 
+						return tostring(alt_data.aspects_crest or "?").." |cffcccccc(+"..(alt_data.aspects_max - alt_data.aspects_earned)..")|r"
+					end
+				end
 				return tostring(alt_data.aspects_crest or "?")
 			end,
 		},

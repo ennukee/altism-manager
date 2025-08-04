@@ -2,6 +2,27 @@ local addoName, addon = ...
 
 local C = {}
 
+C.ids = {
+  -- Lowest to highest tier crests, may not be called these names in the future
+  weathered_crest = 3284,
+  carved_crest = 3286,
+  runed_crest = 3288,
+  gilded_crest = 3290,
+  -- Important PvM currencies
+  spark = 3141,
+  catalyst = 3116, -- NEED 11.2 UPDATE
+  -- Delve
+  coffer1 = 84736,
+  coffer2 = 84737,
+  coffer3 = 84738,
+  coffer4 = 84739,
+  currentCofferKeys = 3028,
+  delversBounty = 86371,
+  -- Raid
+  raid = 2406, -- NEED 11.2 UPDATE
+  worldBoss = 87345 -- NEED 11.2 CONFIRMATION
+}
+
 C.thresholds = {
   mythTrackKeyVault = 10,
   maxLootDelveVault = 8,
@@ -60,7 +81,7 @@ C.labels = {
   mythicPlusRating = "Mythic+ Rating",
   
   flightstones = "Valorstones |T5868902:16:16:0:0|t",
-  sparks = "Sparks |T5929751:16:16:0:0|t",
+  sparks = "Sparks |T5929747:16:16:0:0|t",
   catalyst = "Catalyst |T3566851:16:16:0:0|t",
   algariTokensOfMerit = "Vault Tokens |T2744751:16:16:0:0|t",
 
@@ -69,10 +90,10 @@ C.labels = {
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
 
   upgradeCrests = "Upgrade Crests",
-  whelplingCrest = "Weathered |T5872053:16:16:0:0|t",
-  drakeCrest = "Carved |T5872047:16:16:0:0|t",
-  wyrmCrest = "Runed |T5872051:16:16:0:0|t",
-  aspectCrest = "Gilded |T5872049:16:16:0:0|t",
+  whelplingCrest = "Weathered |T5872061:16:16:0:0|t",
+  drakeCrest = "Carved |T5872055:16:16:0:0|t",
+  wyrmCrest = "Runed |T5872059:16:16:0:0|t",
+  aspectCrest = "Gilded |T5872057:16:16:0:0|t",
   
   pvpCurrency = "PVP Currency",
   honor = "Honor |T1455894:16:16:0:0|t",
@@ -111,26 +132,23 @@ C.configLabels = {
   showPVPCurrenciesEnabled = "Show PVP Currency",
 
   showWorldBossEnabled = "Show World Boss",
-  showUndermineEnabled = "Show Liberation of Undermine",
-  showUndermineMythicEnabled = "Show Undermine Mythic",
-  showUndermineHeroicEnabled = "Show Undermine Heroic",
-  showUndermineNormalEnabled = "Show Undermine Normal",
+  showUndermineEnabled = "Show Manaforge Omega",
+  showUndermineMythicEnabled = "Show Manaforge Omega Mythic",
+  showUndermineHeroicEnabled = "Show Manaforge Omega Heroic",
+  showUndermineNormalEnabled = "Show Manaforge Omega Normal",
 }
 
 C.configTooltips = {
   showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
   showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
-  showRemainingCrestsEnabled = "This does NOTHING if crests are uncapped (e.g. after May 13th)",
+  showRemainingCrestsEnabled = "Whether or not to show additional earnable crests via a (+#) visual in the row",
 }
 
 C.misc = {
   minLevelToShow = 70,
 }
 
-
-
 addon.C = C
-
 
 C.classSpells = {
   WARRIOR = 355, -- Taunt
