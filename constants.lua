@@ -9,8 +9,10 @@ C.ids = {
   runed_crest = 3288,
   gilded_crest = 3290,
   -- Important PvM currencies
+  ethereal_strands = 3278, -- ADD TO UI
   spark = 3141,
-  catalyst = 3116, -- NEED 11.2 UPDATE
+  catalyst = 3269,
+  vault_reroll_token = 248242,
   -- Delve
   coffer1 = 84736,
   coffer2 = 84737,
@@ -20,7 +22,7 @@ C.ids = {
   delversBounty = 86371,
   -- Raid
   raid = 2406, -- NEED 11.2 UPDATE
-  worldBoss = 87345 -- NEED 11.2 CONFIRMATION
+  worldBoss = 87345
 }
 
 C.thresholds = {
@@ -29,7 +31,7 @@ C.thresholds = {
 }
 
 C.pixelSizing = {
-  baseWindowSize = 650,
+  baseWindowSize = 670,
   offsetX = 0,
   offsetY = 40,
   perAltX = 150,
@@ -52,6 +54,7 @@ C.toggles = {
   spark = TraditionalRowValue,
   catalyst = TraditionalRowValue,
   algariTokensOfMerit = TraditionalRowValue,
+  etherealStrands = TraditionalRowValue,
 
   cofferKeys = TraditionalRowValue,
   currentCofferKeys = TraditionalRowValue,
@@ -82,8 +85,9 @@ C.labels = {
   
   flightstones = "Valorstones |T5868902:16:16:0:0|t",
   sparks = "Sparks |T5929747:16:16:0:0|t",
-  catalyst = "Catalyst |T3566851:16:16:0:0|t",
+  catalyst = "Catalyst |T610613:16:16:0:0|t",
   algariTokensOfMerit = "Vault Tokens |T2744751:16:16:0:0|t",
+  etherealStrands = "Eth. Strands |T5931153:16:16:0:0|t",
 
   cofferKeys = "Weekly Coffer Keys",
   currentCofferKeys = "Coffer Keys |T4622270:16:16:0:0|t",
@@ -118,6 +122,7 @@ C.configLabels = {
   showSparksEnabled = "Show Fractured Spark of Fortune progress",
   showCatalystEnabled = "Show Catalyst charges remaining",
   showAlgariTokensOfMeritEnabled = "Show Algari Tokens of Merit",
+  showEtherealStrandsEnabled = "Show Ethereal Strands",
 
   showCofferKeysEnabled = "Show Weekly Coffer Keys earned",
   showCurrentCofferKeysEnabled = "Show Owned Coffer Keys",

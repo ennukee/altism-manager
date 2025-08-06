@@ -125,6 +125,7 @@ function AltismManager:InitDB()
 	t.showSparksEnabled = true;
 	t.showCatalystEnabled = true;
 	t.showRaidVaultEnabled = true;
+	t.showEtherealStrandsEnabled = true;
 	return t;
 end
 
@@ -182,6 +183,9 @@ function AltismManager:CalculateYSize()
 		end
 		if not AltismManagerDB.showAlgariTokensOfMeritEnabled then
 			modifiedSize = modifiedSize - C.toggles.algariTokensOfMerit;
+		end
+		if not AltismManagerDB.showEtherealStrandsEnabled then
+			modifiedSize = modifiedSize - C.toggles.etherealStrands;
 		end
 
 		-- Valorstone -> Delve Gap
@@ -311,6 +315,7 @@ function AltismManager:AddMissingPostReleaseFields()
 	AltismManager:AddMissingField("showSparksEnabled", true)
 	AltismManager:AddMissingField("showCatalystEnabled", true)
 	AltismManager:AddMissingField("showAlgariTokensOfMeritEnabled", true)
+	AltismManager:AddMissingField("showEtherealStrandsEnabled", true)
 	
 	-- Delve section
 	AltismManager:AddMissingField("showCofferKeysEnabled", false)
@@ -854,19 +859,19 @@ function AltismManager:CollectData()
 
 	-- find keystone
 	local keystone_found = false;
-	local algariTokensOfMerit = 0;
+	local vault_reroll_tokens = 0;
 	for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-		if (keystone_found and algariTokensOfMerit > 0) then break end
+		if (keystone_found and vault_reroll_tokens > 0) then break end
 
 		for slot=1, C_Container.GetContainerNumSlots(bag) do
-			if (keystone_found and algariTokensOfMerit > 0) then break end
+			if (keystone_found and vault_reroll_tokens > 0) then break end
 
 			local containerInfo = C_Container.GetContainerItemInfo(bag, slot)
 			if containerInfo ~= nil then
 				local slotItemID = containerInfo.itemID
 				local slotLink = containerInfo.hyperlink
-				if slotItemID == 230793 then
-					algariTokensOfMerit = containerInfo.stackCount or 0
+				if slotItemID == C.ids.vault_reroll_token then
+					vault_reroll_tokens = containerInfo.stackCount or 0
 				end
 				if slotItemID == 180653 then
 					local itemString = slotLink:match("|Hkeystone:([0-9:]+)|h(%b[])|h")
@@ -888,7 +893,7 @@ function AltismManager:CollectData()
 
 	-- Define the savedata file
 	local char_table = {}
-	char_table.algariTokensOfMerit = algariTokensOfMerit
+	char_table.algariTokensOfMerit = vault_reroll_tokens
 
 	char_table.raidsaves = {}
 
@@ -943,6 +948,7 @@ function AltismManager:CollectData()
 	local weeklyRaid = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.Raid);
 	if (#weeklyRaid < 3) then
 		-- print("[AltismManager]: Issue retrieving raid vault data, values may be inaccurate.")
+		char_table.raidvault = {"X", "X", "X"}
 	else
 		local raidVaultOutput = {}
 		table.insert(raidVaultOutput, difficultyMap[weeklyRaid[1].level] or "X")
@@ -954,6 +960,7 @@ function AltismManager:CollectData()
 	local weeklyDelve = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.World);
 	if (#weeklyDelve < 3) then
 		-- print("[AltismManager]: Issue retrieving delve vault data, values may be inaccurate.")
+		char_table.delvevault = {"X", "X", "X"}
 	else
 		local delveVaultOutput = {}
 		table.insert(delveVaultOutput, weeklyDelve[1].level or "X")
@@ -962,9 +969,11 @@ function AltismManager:CollectData()
 		char_table.delvevault = delveVaultOutput
 	end
 
-	local weeklyKeys = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.MythicPlus);
+	-- local weeklyKeys = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.MythicPlus);
+	local weeklyKeys = C_WeeklyRewards.GetActivities(1);
 	if (#weeklyKeys < 3) then
 		-- print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
+		char_table.mythicplusvault = {"X", "X", "X"}
 	else
 		local mythicPlusVaultOutput = {}
 		table.insert(mythicPlusVaultOutput, weeklyKeys[1].level or "X")
@@ -1044,6 +1053,13 @@ function AltismManager:CollectData()
 			return 0
 		end
 	end
+
+	local ethereal_strands = C_CurrencyInfo.GetCurrencyInfo(C.ids.ethereal_strands);
+	local ethereal_strands_amount = ethereal_strands.totalEarned;
+	local ethereal_strands_max = ethereal_strands.maxQuantity;
+
+	char_table.ethereal_strands = ethereal_strands_amount;
+	char_table.ethereal_strands_max = ethereal_strands_max;
 
 	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeys).quantity;
 	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(C.ids.delversBounty);
@@ -1469,6 +1485,21 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showAlgariTokensOfMeritEnabled,
 			data = function(alt_data)
 				return tostring(alt_data.algariTokensOfMerit or "?")
+			end,
+		},
+		etherealStrands = {
+			order = 5.5,
+			label = C.labels.etherealStrands,
+			enabled = AltismManagerDB.showEtherealStrandsEnabled,
+			data = function(alt_data)
+				if (not alt_data.ethereal_strands) or (not alt_data.ethereal_strands_max) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				if (alt_data.ethereal_strands == alt_data.ethereal_strands_max) then
+					return "|cFF39ec3c" .. tostring(alt_data.ethereal_strands or "?") .. " / " .. (alt_data.ethereal_strands_max or "?") .. "|r"
+				else
+					return tostring(alt_data.ethereal_strands or "?") .. " / " .. (alt_data.ethereal_strands_max or "?")
+				end
 			end,
 		},
 		-- ! Offset

@@ -126,11 +126,14 @@ frame:SetScript("OnShow", function()
   local showAlgariTokensOfMerit = createCheckbox("showAlgariTokensOfMeritEnabled")
   showAlgariTokensOfMerit:SetPoint("TOPLEFT", showCatalyst, "BOTTOMLEFT", 0, -2)
 
+  local showEtherealStrands = createCheckbox("showEtherealStrandsEnabled")
+  showEtherealStrands:SetPoint("TOPLEFT", showSparks, "BOTTOMLEFT", 0, -2)
+
   -------------------
   -- Delve Section --
   -------------------
   local delveSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  delveSection:SetPoint("BOTTOMLEFT", valorstoneSection, 0, -(rowHeight * 3))
+  delveSection:SetPoint("BOTTOMLEFT", valorstoneSection, 0, -(rowHeight * 4))
   delveSection:SetText("Delve Section")
 
   local showCofferKeys = createCheckbox("showCofferKeysEnabled")
