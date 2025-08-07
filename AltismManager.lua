@@ -975,10 +975,37 @@ function AltismManager:CollectData()
 		-- print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
 		char_table.mythicplusvault = {"X", "X", "X"}
 	else
+		print(weeklyKeys[1].level, weeklyKeys[2].level, weeklyKeys[3].level)
 		local mythicPlusVaultOutput = {}
-		table.insert(mythicPlusVaultOutput, weeklyKeys[1].level or "X")
-		table.insert(mythicPlusVaultOutput, weeklyKeys[2].level or "X")
-		table.insert(mythicPlusVaultOutput, weeklyKeys[3].level or "X")
+		if (weeklyKeys[1].progress >= weeklyKeys[1].threshold) then
+			if weeklyKeys[1].level == 0 then
+				table.insert(mythicPlusVaultOutput, "M0")
+			else
+				table.insert(mythicPlusVaultOutput, weeklyKeys[1].level or -1)
+			end
+		else
+			table.insert(mythicPlusVaultOutput, -1)
+		end
+
+		if (weeklyKeys[2].progress >= weeklyKeys[2].threshold) then
+			if weeklyKeys[2].level == 0 then
+				table.insert(mythicPlusVaultOutput, "M0")
+			else
+				table.insert(mythicPlusVaultOutput, weeklyKeys[2].level or -1)
+			end
+		else
+			table.insert(mythicPlusVaultOutput, -1)
+		end
+
+		if (weeklyKeys[3].progress >= weeklyKeys[3].threshold) then
+			if weeklyKeys[3].level == 0 then
+				table.insert(mythicPlusVaultOutput, "M0")
+			else
+				table.insert(mythicPlusVaultOutput, weeklyKeys[3].level or -1)
+			end
+		else
+			table.insert(mythicPlusVaultOutput, -1)
+		end
 		char_table.mythicplusvault = mythicPlusVaultOutput
 	end
 
@@ -1310,24 +1337,30 @@ function AltismManager:MythicVaultSummaryString(alt_data)
 	-- local total_runs = #sorted_history
 	local result = ""
 
-	if alt_data.mythicplusvault[1] >= C.thresholds.mythTrackKeyVault then
-			result = "|cFF00FF00" .. tostring(alt_data.mythicplusvault[1]) .. "|r"
+	if alt_data.mythicplusvault[1] == "M0" then
+		result = result .. "0"
+	elseif alt_data.mythicplusvault[1] >= C.thresholds.mythTrackKeyVault then
+		result = "|cFF00FF00" .. tostring(alt_data.mythicplusvault[1]) .. "|r"
 	elseif alt_data.mythicplusvault[1] > 0 then
-			result = tostring(alt_data.mythicplusvault[1])
+		result = tostring(alt_data.mythicplusvault[1])
 	else
 		result = result .. "|cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[2] >= C.thresholds.mythTrackKeyVault then
+	if alt_data.mythicplusvault[2] == "M0" then
+		result = result .. " / 0"
+	elseif alt_data.mythicplusvault[2] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[2]) .. "|r"
 	elseif alt_data.mythicplusvault[2] > 0 then
 		result = result .. " / " .. tostring(alt_data.mythicplusvault[2])
 	else
 		result = result .. " / |cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[3] >= C.thresholds.mythTrackKeyVault then
+	if alt_data.mythicplusvault[3] == "M0" then
+		result = result .. " / 0"
+	elseif alt_data.mythicplusvault[3] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[3]) .. "|r"
 	elseif alt_data.mythicplusvault[3] > 0 then
-		result = result .. " / " .. tostring(alt_data.mythicplusvault[2])
+		result = result .. " / " .. tostring(alt_data.mythicplusvault[3])
 	else
 		result = result .. " / |cFF999999X|r"
 	end
