@@ -975,7 +975,6 @@ function AltismManager:CollectData()
 		-- print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
 		char_table.mythicplusvault = {"X", "X", "X"}
 	else
-		print(weeklyKeys[1].level, weeklyKeys[2].level, weeklyKeys[3].level)
 		local mythicPlusVaultOutput = {}
 		if (weeklyKeys[1].progress >= weeklyKeys[1].threshold) then
 			if weeklyKeys[1].level == 0 then
