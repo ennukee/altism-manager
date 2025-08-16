@@ -145,6 +145,9 @@ frame:SetScript("OnShow", function()
   local showDelversBounty = createCheckbox("showDelversBountyEnabled")
   showDelversBounty:SetPoint("TOPLEFT", showCofferKeys, "BOTTOMLEFT", 0, -2)
 
+  local showCrackedKeystoneEnabled = createCheckbox("showCrackedKeystoneEnabled")
+  showCrackedKeystoneEnabled:SetPoint("TOPLEFT", showCurrentCofferKeys, "BOTTOMLEFT", 0, -2)
+
   ---------------------------
   -- Upgrade Crest Section --
   ---------------------------

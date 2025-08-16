@@ -18,10 +18,15 @@ C.ids = {
   coffer2 = 84737,
   coffer3 = 84738,
   coffer4 = 84739,
+  tww3_coffer1 = 91175,
+  tww3_coffer2 = 91176,
+  tww3_coffer3 = 91177,
+  tww3_coffer4 = 91178,
   currentCofferKeys = 3028,
   delversBounty = 86371,
+  crackedKeystoneQuest = 90779,
   -- Raid
-  raid = 2406, -- NEED 11.2 UPDATE
+  raid = 2406, -- NEED 11.2 UPDATE?
   worldBoss = 87345
 }
 
@@ -31,7 +36,7 @@ C.thresholds = {
 }
 
 C.pixelSizing = {
-  baseWindowSize = 670,
+  baseWindowSize = 710,
   offsetX = 0,
   offsetY = 40,
   perAltX = 150,
@@ -57,8 +62,9 @@ C.toggles = {
   etherealStrands = TraditionalRowValue,
 
   cofferKeys = TraditionalRowValue,
-  currentCofferKeys = TraditionalRowValue,
+  currentCofferKeys = TraditionalRowValue * 2,
   delverBounty = TraditionalRowValue,
+  crackedKeystoneDone = TraditionalRowValue,
   
   whelpling = TraditionalRowValue,
   drake = TraditionalRowValue,
@@ -89,9 +95,11 @@ C.labels = {
   algariTokensOfMerit = "Vault Tokens |T2744751:16:16:0:0|t",
   etherealStrands = "Eth. Strands |T5931153:16:16:0:0|t",
 
-  cofferKeys = "Weekly Coffer Keys",
-  currentCofferKeys = "Coffer Keys |T4622270:16:16:0:0|t",
+  cofferKeys = "Weekly Shards",
+  tww3CofferKeys = "Weekly Keys",
+  currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
+  crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
 
   upgradeCrests = "Upgrade Crests",
   whelplingCrest = "Weathered |T5872061:16:16:0:0|t",
@@ -127,6 +135,7 @@ C.configLabels = {
   showCofferKeysEnabled = "Show Weekly Coffer Keys earned",
   showCurrentCofferKeysEnabled = "Show Owned Coffer Keys",
   showDelversBountyEnabled = "Show Delver's Bounty completion",
+  showCrackedKeystoneEnabled = "Show Cracked Keystone one-time quest",
 
   showRemainingCrestsEnabled = "Show remaining crests to be earned up to cap",
   showWhelplingCrestEnabled = "Show Weathered Crests",
@@ -147,6 +156,7 @@ C.configTooltips = {
   showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
   showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
   showRemainingCrestsEnabled = "Whether or not to show additional earnable crests via a (+#) visual in the row",
+  showCrackedKeystoneEnabled = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
 }
 
 C.misc = {

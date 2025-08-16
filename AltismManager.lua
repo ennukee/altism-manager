@@ -164,6 +164,9 @@ function AltismManager:CalculateYSize()
 		if not AltismManagerDB.showMythicPlusDataEnabled then
 			modifiedSize = modifiedSize - C.toggles.mythicPlus;
 		end
+		if not AltismManagerDB.showCrackedKeystoneEnabled then
+			modifiedSize = modifiedSize - C.toggles.crackedKeystoneDone;
+		end
 
 		-- Vault -> Valorstone Gap
 		if not AltismManagerDB.showValorstonesEnabled and not AltismManagerDB.showSparksEnabled and not AltismManagerDB.showCatalystEnabled then
@@ -321,6 +324,7 @@ function AltismManager:AddMissingPostReleaseFields()
 	AltismManager:AddMissingField("showCofferKeysEnabled", false)
 	AltismManager:AddMissingField("showCurrentCofferKeysEnabled", false)
 	AltismManager:AddMissingField("showDelversBountyEnabled", false)
+	AltismManager:AddMissingField("showCrackedKeystoneEnabled", true)
 
 	-- Upgrade crests section
 	AltismManager:AddMissingField("showRemainingCrestsEnabled", true)
@@ -644,6 +648,8 @@ function AltismManager:ResetCharTable(char_table)
 	char_table.delvevault = nil;
 	char_table.cofferKeysObtained = 0;
 	char_table.delversBountyClaimed = false;
+	char_table.ethereal_strands = 0
+	char_table.ethereal_strands_max = 0
 end
 
 function AltismManager:Purge()
@@ -1072,6 +1078,11 @@ function AltismManager:CollectData()
 	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer3)
 	local cofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer4)
 
+	local tww3CofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer1)
+	local tww3CofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer2)
+	local tww3CofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer3)
+	local tww3CofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer4)
+
 	local function b2n(bool)
 		if bool then
 			return 1
@@ -1118,6 +1129,7 @@ function AltismManager:CollectData()
 	char_table.aspects_earned = aspects_earned;
 	char_table.flightstones = flightstones;
 	char_table.honor_points = honor_points;
+	char_table.tww3CofferKeysObtained = b2n(tww3CofferKey1) + b2n(tww3CofferKey2) + b2n(tww3CofferKey3) + b2n(tww3CofferKey4)
 	char_table.cofferKeysObtained = b2n(cofferKey1) + b2n(cofferKey2) + b2n(cofferKey3) + b2n(cofferKey4)
 
 	char_table.undermine_normal = Undermine_Normal;
@@ -1127,6 +1139,9 @@ function AltismManager:CollectData()
 	char_table.expires = self:GetNextWeeklyResetTime();
 	char_table.data_obtained = time();
 	char_table.time_until_reset = C_DateAndTime.GetSecondsUntilDailyReset();
+
+	local crackedKeystoneDone = C_QuestLog.IsQuestFlaggedCompleted(C.ids.crackedKeystoneQuest);
+	char_table.cracked_keystone_done = crackedKeystoneDone;
 
 	return char_table;
 end
@@ -1546,7 +1561,21 @@ function AltismManager:CreateContent()
 			label = C.labels.cofferKeys,
 			enabled = AltismManagerDB.showCofferKeysEnabled,
 			data = function(alt_data)
+				if (alt_data.cofferKeysObtained == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
 				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
+			end,
+		},
+		tww3CofferKeys = {
+			order = 6.012,
+			label = C.labels.tww3CofferKeys,
+			enabled = AltismManagerDB.showCofferKeysEnabled,
+			data = function(alt_data)
+				if (alt_data.tww3CofferKeysObtained == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.tww3CofferKeysObtained or "?") .. " / 4"
 			end,
 		},
 		currentCofferKeys = {
@@ -1566,6 +1595,17 @@ function AltismManager:CreateContent()
 					return "|cFFbbbbbbUnknown|r"
 				end
 				return tostring(alt_data.delversBountyClaimed and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		crackedKeystoneDone = {
+			order = 6.014,
+			label = C.labels.crackedKeystoneDone,
+			enabled = AltismManagerDB.showCrackedKeystoneEnabled,
+			data = function(alt_data)
+				if (alt_data.cracked_keystone_done == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.cracked_keystone_done and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
 		-- ! Offset
