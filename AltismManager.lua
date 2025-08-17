@@ -1406,7 +1406,7 @@ function AltismManager:DelveVaultSummaryString(alt_data)
 	if alt_data.delvevault[3] >= C.thresholds.maxLootDelveVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.delvevault[3]) .. "|r"
 	elseif alt_data.delvevault[3] > 0 then
-		result = result .. " / " .. tostring(alt_data.delvevault[2])
+		result = result .. " / " .. tostring(alt_data.delvevault[3])
 	else
 		result = result .. " / |cFF999999X|r"
 	end
