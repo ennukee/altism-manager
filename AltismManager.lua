@@ -983,7 +983,7 @@ function AltismManager:CollectData()
 		char_table.mythicplusvault = {"X", "X", "X"}
 	else
 		local mythicPlusVaultOutput = {}
-		if (weeklyKeys[1].progress == #run_history + 1) then
+		if (weeklyKeys[3].progress == #run_history + 1) then
 			char_table.hardmode_tazavesh_completed = true
 		end
 		if (weeklyKeys[1].progress >= weeklyKeys[1].threshold) then
