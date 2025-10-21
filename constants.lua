@@ -155,7 +155,7 @@ C.configLabels = {
 C.configTooltips = {
   showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
   showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
-  showRemainingCrestsEnabled = "Whether or not to show additional earnable crests via a (+#) visual in the row",
+  showRemainingCrestsEnabled = "Whether or not to show additional earnable crests via a (+#) visual in the row (does nothing if crest cap is removed in Turbo Boost)",
   showCrackedKeystoneEnabled = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
 }
 

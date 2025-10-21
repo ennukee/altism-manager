@@ -1627,7 +1627,8 @@ function AltismManager:CreateContent()
 			label = C.labels.whelplingCrest,
 			enabled = AltismManagerDB.showWhelplingCrestEnabled,
 			data = function(alt_data)
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
+				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
 					else 
@@ -1642,7 +1643,8 @@ function AltismManager:CreateContent()
 			label = C.labels.drakeCrest,
 			enabled = AltismManagerDB.showDrakeCrestEnabled,
 			data = function(alt_data)
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
+				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.drakes_max == alt_data.drakes_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
 					else 
@@ -1657,7 +1659,8 @@ function AltismManager:CreateContent()
 			label = C.labels.wyrmCrest,
 			enabled = AltismManagerDB.showWyrmCrestEnabled,
 			data = function(alt_data)
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
+				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
 					else 
@@ -1672,7 +1675,8 @@ function AltismManager:CreateContent()
 			label = C.labels.aspectCrest,
 			enabled = AltismManagerDB.showAspectCrestEnabled,
 			data = function(alt_data)
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
+				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.aspects_max == alt_data.aspects_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
 					else 
