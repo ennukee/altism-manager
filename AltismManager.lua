@@ -114,9 +114,7 @@ function AltismManager:InitDB()
 	t.data = {};
 	t.showGoldEnabled = true;
 	t.showMythicPlusDataEnabled = true;
-	t.showValorstonesEnabled = true;
 	t.showPVPCurrenciesEnabled = false;
-	t.showUndermineEnabled = true;
 	t.showWorldBossEnabled = false;
 	t.showRemainingCrestsEnabled = true;
 	t.showMythicPlusVaultEnabled = true;
@@ -125,7 +123,6 @@ function AltismManager:InitDB()
 	t.showSparksEnabled = true;
 	t.showCatalystEnabled = true;
 	t.showRaidVaultEnabled = true;
-	t.showEtherealStrandsEnabled = true;
 	return t;
 end
 
@@ -141,125 +138,22 @@ end
 function AltismManager:CalculateYSize()
 	local modifiedSize = C.pixelSizing.baseWindowSize;
 	if AltismManagerDB then
-		-- General section
-		if not AltismManagerDB.showGoldEnabled then
-			modifiedSize = modifiedSize - C.toggles.gold;
+		for _, section in ipairs(C.sections or {}) do
+			local anyActive = false
+			for _, flagName in ipairs(section) do
+				if AltismManagerDB[flagName] then
+					anyActive = true
+					break
+				end
+			end
+			if not anyActive then
+				modifiedSize = modifiedSize - C.TraditionalRowValue
+			end
 		end
-
-		-- General -> Vault Gap
-		if not AltismManagerDB.showRaidVaultEnabled and not AltismManagerDB.showMythicPlusVaultEnabled and not AltismManagerDB.showDelveVaultEnabled and not AltismManagerDB.showMythicPlusDataEnabled then
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-
-		-- Vault section
-		if not AltismManagerDB.showRaidVaultEnabled then
-			modifiedSize = modifiedSize - C.toggles.raidVault;
-		end
-		if not AltismManagerDB.showDelveVaultEnabled then
-			modifiedSize = modifiedSize - C.toggles.delveVault;
-		end
-		if not AltismManagerDB.showMythicPlusVaultEnabled then
-			modifiedSize = modifiedSize - C.toggles.mythicPlusVault;
-		end
-		if not AltismManagerDB.showMythicPlusDataEnabled then
-			modifiedSize = modifiedSize - C.toggles.mythicPlus;
-		end
-		if not AltismManagerDB.showCrackedKeystoneEnabled then
-			modifiedSize = modifiedSize - C.toggles.crackedKeystoneDone;
-		end
-
-		-- Vault -> Valorstone Gap
-		if not AltismManagerDB.showValorstonesEnabled and not AltismManagerDB.showSparksEnabled and not AltismManagerDB.showCatalystEnabled then
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-	
-		-- Valorstone section
-		if not AltismManagerDB.showValorstonesEnabled then
-			modifiedSize = modifiedSize - C.toggles.valorstones;
-		end
-		
-		if not AltismManagerDB.showSparksEnabled then
-			modifiedSize = modifiedSize - C.toggles.spark;
-		end
-		if not AltismManagerDB.showCatalystEnabled then
-			modifiedSize = modifiedSize - C.toggles.catalyst;
-		end
-		if not AltismManagerDB.showAlgariTokensOfMeritEnabled then
-			modifiedSize = modifiedSize - C.toggles.algariTokensOfMerit;
-		end
-		if not AltismManagerDB.showEtherealStrandsEnabled then
-			modifiedSize = modifiedSize - C.toggles.etherealStrands;
-		end
-
-		-- Valorstone -> Delve Gap
-		if not AltismManagerDB.showCofferKeysEnabled and not AltismManagerDB.showCurrentCofferKeysEnabled and not AltismManagerDB.showDelversBountyEnabled then
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-
-		-- Delve section
-		if not AltismManagerDB.showCofferKeysEnabled then
-			modifiedSize = modifiedSize - C.toggles.cofferKeys;
-		end
-		if not AltismManagerDB.showCurrentCofferKeysEnabled then
-			modifiedSize = modifiedSize - C.toggles.currentCofferKeys;
-		end
-		if not AltismManagerDB.showDelversBountyEnabled then
-			modifiedSize = modifiedSize - C.toggles.delverBounty;
-		end
-
-		-- Valorstone -> Crest Gap
-		if not AltismManagerDB.showWhelplingCrest and not AltismManagerDB.showDrakeCrest and not AltismManagerDB.showWyrmCrest and not AltismManagerDB.showAspectCrest then
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-
-		-- Upgrade crests section
-		if not AltismManagerDB.showWhelplingCrestEnabled then
-			modifiedSize = modifiedSize - C.toggles.whelpling;
-		end
-		if not AltismManagerDB.showDrakeCrestEnabled then
-			modifiedSize = modifiedSize - C.toggles.drake;
-		end
-		if not AltismManagerDB.showWyrmCrestEnabled then
-			modifiedSize = modifiedSize - C.toggles.wyrm;
-		end
-		if not AltismManagerDB.showAspectCrestEnabled then
-			modifiedSize = modifiedSize - C.toggles.aspect;
-		end
-
-		-- Crests -> PVP Gap included below
-
-		-- PVP Section
-		if not AltismManagerDB.showPVPCurrenciesEnabled then
-			modifiedSize = modifiedSize - C.toggles.pvp;
-			-- Remove the gap between PVP and Boss section as well
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-
-		-- PVP -> Boss Gap
-		if not AltismManagerDB.showWorldBossEnabled
-			and (
-				not AltismManagerDB.showUndermineEnabled
-				or (
-					not AltismManagerDB.showUndermineNormalEnabled
-					and not AltismManagerDB.showUndermineHeroicEnabled
-					and not AltismManagerDB.showUndermineMythicEnabled
-				)
-			) then
-			modifiedSize = modifiedSize - C.toggles.gap;
-		end
-
-		-- Boss Section
-		if not AltismManagerDB.showWorldBossEnabled then
-			modifiedSize = modifiedSize - C.toggles.worldBoss;
-		end
-		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineNormalEnabled then
-			modifiedSize = modifiedSize - C.toggles.normal;
-		end
-		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineHeroicEnabled then
-			modifiedSize = modifiedSize - C.toggles.heroic;
-		end
-		if not AltismManagerDB.showUndermineEnabled or not AltismManagerDB.showUndermineMythicEnabled then
-			modifiedSize = modifiedSize - C.toggles.mythic;
+		for flagName, config in pairs(C.configData or {}) do
+			if AltismManagerDB[flagName] == false then
+					modifiedSize = modifiedSize - (config.height or 0)
+			end
 		end
 	end
 	return modifiedSize
@@ -304,47 +198,10 @@ end
 function AltismManager:AddMissingPostReleaseFields()
 	if AltismManagerDB == nil then return end
 
-	-- General
-	AltismManager:AddMissingField("showGoldEnabled", true)
-	
-	-- Vault section
-	AltismManager:AddMissingField("showRaidVaultEnabled", true)
-	AltismManager:AddMissingField("showMythicPlusVaultEnabled", true)
-	AltismManager:AddMissingField("showDelveVaultEnabled", true)
-	AltismManager:AddMissingField("showMythicPlusDataEnabled", true)
-
-	-- Valorstone section
-	AltismManager:AddMissingField("showValorstonesEnabled", true)
-	AltismManager:AddMissingField("showSparksEnabled", true)
-	AltismManager:AddMissingField("showCatalystEnabled", true)
-	AltismManager:AddMissingField("showAlgariTokensOfMeritEnabled", true)
-	AltismManager:AddMissingField("showEtherealStrandsEnabled", true)
-	
-	-- Delve section
-	AltismManager:AddMissingField("showCofferKeysEnabled", false)
-	AltismManager:AddMissingField("showCurrentCofferKeysEnabled", false)
-	AltismManager:AddMissingField("showDelversBountyEnabled", false)
-	AltismManager:AddMissingField("showCrackedKeystoneEnabled", true)
-
-	-- Upgrade crests section
-	AltismManager:AddMissingField("showRemainingCrestsEnabled", true)
-	AltismManager:AddMissingField("showWhelplingCrestEnabled", true)
-	AltismManager:AddMissingField("showDrakeCrestEnabled", true)
-	AltismManager:AddMissingField("showWyrmCrestEnabled", true)
-	AltismManager:AddMissingField("showAspectCrestEnabled", true)
-
-	-- PVP section
-	AltismManager:AddMissingField("showPVPCurrenciesEnabled", true)
-
-	-- Boss section
-	AltismManager:AddMissingField("showWorldBossEnabled", true)
-	AltismManager:AddMissingField("showUndermineEnabled", true)
-	AltismManager:AddMissingField("showUndermineNormalEnabled", true)
-	AltismManager:AddMissingField("showUndermineHeroicEnabled", true)
-	AltismManager:AddMissingField("showUndermineMythicEnabled", true)
-	-- AltismManager:AddMissingField("showNerubarPalaceEnabled", true)
-
-
+	-- Iterate over C.configData and add missing fields with their defaults
+	for key, config in pairs(C.configData) do
+		AltismManager:AddMissingField(key, config.default)
+	end
 end
 
 function AltismManager:OnLoad()
@@ -648,8 +505,6 @@ function AltismManager:ResetCharTable(char_table)
 	char_table.delvevault = nil;
 	char_table.cofferKeysObtained = 0;
 	char_table.delversBountyClaimed = false;
-	char_table.ethereal_strands = 0
-	char_table.ethereal_strands_max = 0
 end
 
 function AltismManager:Purge()
@@ -865,19 +720,19 @@ function AltismManager:CollectData()
 
 	-- find keystone
 	local keystone_found = false;
-	local vault_reroll_tokens = 0;
+	local vault_tokens = 0;
 	for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-		if (keystone_found and vault_reroll_tokens > 0) then break end
+		if (keystone_found and vault_tokens > 0) then break end
 
 		for slot=1, C_Container.GetContainerNumSlots(bag) do
-			if (keystone_found and vault_reroll_tokens > 0) then break end
+			if (keystone_found and vault_tokens > 0) then break end
 
 			local containerInfo = C_Container.GetContainerItemInfo(bag, slot)
 			if containerInfo ~= nil then
 				local slotItemID = containerInfo.itemID
 				local slotLink = containerInfo.hyperlink
-				if slotItemID == C.ids.vault_reroll_token then
-					vault_reroll_tokens = containerInfo.stackCount or 0
+				if slotItemID == C.ids.vault_tokens then
+					vault_tokens = containerInfo.stackCount or 0
 				end
 				if slotItemID == 180653 then
 					local itemString = slotLink:match("|Hkeystone:([0-9:]+)|h(%b[])|h")
@@ -899,7 +754,7 @@ function AltismManager:CollectData()
 
 	-- Define the savedata file
 	local char_table = {}
-	char_table.algariTokensOfMerit = vault_reroll_tokens
+	char_table.vaultTokens = vault_tokens
 
 	char_table.raidsaves = {}
 
@@ -1040,52 +895,32 @@ function AltismManager:CollectData()
 	local worldBossKilled = C_QuestLog.IsQuestFlaggedCompleted(relevantWorldBossID)
 
 	local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID);
-	local maxProgress = currencyInfo.maxQuantity;
-	local conquest_earned = math.min(currencyInfo.totalEarned, maxProgress);
+	local conquest_earned = math.min(currencyInfo.totalEarned, currencyInfo.maxQuantity);
 	local conquest_total = currencyInfo.quantity
 
 	local _, ilevel = GetAverageItemLevel();
 	local gold = GetMoneyString(GetMoney(), true)
 	local whelplings_crest = GetCurrencyAmount(C.ids.weathered_crest);
 	local whelplings_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.weathered_crest);
-	local whelplings_max = whelplings_info.maxQuantity;
-	local whelplings_earned = whelplings_info.totalEarned;
 	local drakes_crest = GetCurrencyAmount(C.ids.carved_crest);
 	local drakes_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.carved_crest);
-	local drakes_max = drakes_info.maxQuantity;
-	local drakes_earned = drakes_info.totalEarned;
 	local wyrms_crest = GetCurrencyAmount(C.ids.runed_crest);
 	local wyrms_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.runed_crest);
-	local wyrms_max = wyrms_info.maxQuantity;
-	local wyrms_earned = wyrms_info.totalEarned;
 	local aspects_crest = GetCurrencyAmount(C.ids.gilded_crest);
 	local aspects_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.gilded_crest);
-	local aspects_max = aspects_info.maxQuantity;
-	local aspects_earned = aspects_info.totalEarned;
-	local honor_points = GetCurrencyAmount(1792);
-	local flightstones = GetCurrencyAmount(3008);
 	local mplus_data = C_PlayerInfo.GetPlayerMythicPlusRatingSummary('player')
-	local mplus_score = mplus_data.currentSeasonScore
 
 	local sparkData = C_CurrencyInfo.GetCurrencyInfo(C.ids.spark);
-	local currentSparks = sparkData.quantity;
-	local maxSparks = sparkData.maxQuantity;
-	char_table.currentSparks = currentSparks;
-	AltismManagerDB.currentMaxSparks = maxSparks;
+	char_table.currentSparks = sparkData.quantity;
+	AltismManagerDB.currentMaxSparks = sparkData.maxQuantity;
 
 	local catalystData = C_CurrencyInfo.GetCurrencyInfo(C.ids.catalyst)
-	local currentCatalyst = catalystData.quantity;
-	char_table.currentCatalyst = currentCatalyst;
+	char_table.currentCatalyst = catalystData.quantity;
 
 	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer1)
 	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer2)
 	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer3)
 	local cofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer4)
-
-	local tww3CofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer1)
-	local tww3CofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer2)
-	local tww3CofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer3)
-	local tww3CofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.tww3_coffer4)
 
 	local function b2n(bool)
 		if bool then
@@ -1094,13 +929,6 @@ function AltismManager:CollectData()
 			return 0
 		end
 	end
-
-	local ethereal_strands = C_CurrencyInfo.GetCurrencyInfo(C.ids.ethereal_strands);
-	local ethereal_strands_amount = ethereal_strands.totalEarned;
-	local ethereal_strands_max = ethereal_strands.maxQuantity;
-
-	char_table.ethereal_strands = ethereal_strands_amount;
-	char_table.ethereal_strands_max = ethereal_strands_max;
 
 	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeys).quantity;
 	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(C.ids.delversBounty);
@@ -1117,23 +945,22 @@ function AltismManager:CollectData()
 	char_table.conquest_earned = conquest_earned;
 	char_table.conquest_total = conquest_total;
 
-	char_table.mplus_score = mplus_score
+	char_table.mplus_score = mplus_data.currentSeasonScore
 	char_table.gold = gold;
 	char_table.whelplings_crest = whelplings_crest;
-	char_table.whelplings_max = whelplings_max;
-	char_table.whelplings_earned = whelplings_earned;
+	char_table.whelplings_max = whelplings_info.maxQuantity;
+	char_table.whelplings_earned = whelplings_info.totalEarned;
 	char_table.drakes_crest = drakes_crest;
-	char_table.drakes_max = drakes_max;
-	char_table.drakes_earned = drakes_earned;
+	char_table.drakes_max = drakes_info.maxQuantity;
+	char_table.drakes_earned = drakes_info.totalEarned;
 	char_table.wyrms_crest = wyrms_crest;
-	char_table.wyrms_max = wyrms_max;
-	char_table.wyrms_earned = wyrms_earned;
+	char_table.wyrms_max = wyrms_info.maxQuantity;
+	char_table.wyrms_earned = wyrms_info.totalEarned;
 	char_table.aspects_crest = aspects_crest;
-	char_table.aspects_max = aspects_max;
-	char_table.aspects_earned = aspects_earned;
-	char_table.flightstones = flightstones;
-	char_table.honor_points = honor_points;
-	char_table.tww3CofferKeysObtained = b2n(tww3CofferKey1) + b2n(tww3CofferKey2) + b2n(tww3CofferKey3) + b2n(tww3CofferKey4)
+	char_table.aspects_max = aspects_info.maxQuantity;
+	char_table.aspects_earned = aspects_info.totalEarned;
+	char_table.flightstones = GetCurrencyAmount(3008);
+	char_table.honor_points = GetCurrencyAmount(1792);
 	char_table.cofferKeysObtained = b2n(cofferKey1) + b2n(cofferKey2) + b2n(cofferKey3) + b2n(cofferKey4)
 
 	char_table.undermine_normal = Undermine_Normal;
@@ -1426,16 +1253,30 @@ function AltismManager:CreateContent()
 	self.main_frame.closeButton:SetScript("OnClick", function() AltismManager:HideInterface(); end);
 	--self.main_frame.closeButton:SetSize(32, h);
 
+	local function checkSectionFlags(section_id) 
+		if not AltismManagerDB or not C.sections or not C.sections[section_id] then
+			return false
+		end
+
+		for _, flagName in ipairs(C.sections[section_id]) do
+			if AltismManagerDB[flagName] then
+				return true
+			end
+		end
+
+		return false
+	end
+
 	local column_table = {
 		name = {
-			order = 1,
+			order = 1001,
 			label = C.labels.name,
 			enabled = true,
 			data = function(alt_data) return alt_data.name end,
 			color = function(alt_data) return RAID_CLASS_COLORS[alt_data.class] end,
 		},
 		ilevel = {
-			order = 2,
+			order = 1002,
 			data = function(alt_data) return string.format("%.2f", alt_data.ilevel or 0) end, -- , alt_data.neck_level or 0
 			justify = "TOP",
 			enabled = true,
@@ -1443,20 +1284,20 @@ function AltismManager:CreateContent()
 			remove_button = function(alt_data) return self:CreateRemoveButton(function() AltismManager:RemoveCharacterByGuid(alt_data.guid) end) end
 		},
 		gold = {
-			order = 3,
+			order = 1003,
 			justify = "TOP",
 			enabled = AltismManagerDB.showGoldEnabled,
 			font = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf",
 			data = function(alt_data) return tostring(alt_data.gold or "0") end,
 		},
 		raidvault = {
-			order = 3.5,
+			order = 2010,
 			label = C.labels.raidVault,
 			enabled = AltismManagerDB.showRaidVaultEnabled,
 			data = function(alt_data) return self:RaidVaultSummaryString(alt_data) end,
 		},
 		mplusvault = {
-			order = 4,
+			order = 2020,
 			label = C.labels.mythicPlusVault,
 			enabled = AltismManagerDB.showMythicPlusVaultEnabled,
 			tooltip = function(alt_data)
@@ -1473,44 +1314,32 @@ function AltismManager:CreateContent()
 			data = function(alt_data) return self:MythicVaultSummaryString(alt_data) end,
 		},
 		delvevault = {
-			order = 4.1,
+			order = 2030,
 			label = C.labels.delveVault,
 			enabled = AltismManagerDB.showDelveVaultEnabled,
 			data = function(alt_data) return self:DelveVaultSummaryString(alt_data) end,
 		},
 		keystone = {
-			order = 4.3,
+			order = 2040,
 			label = C.labels.mythicKeystone,
 			enabled = AltismManagerDB.showMythicPlusDataEnabled,
 			data = function(alt_data) return (dungeons[alt_data.dungeon] or alt_data.dungeon) .. " +" .. tostring(alt_data.level); end,
 		},
 		mplus_score = {
-			order = 4.4,
+			order = 2050,
 			label = C.labels.mythicPlusRating,
 			enabled = AltismManagerDB.showMythicPlusDataEnabled,
 			data = function(alt_data) return tostring(alt_data.mplus_score or "0") end,
 		},
 		-- ! Offset
 		FAKE_FOR_OFFSET = {
-			order = 5,
+			order = 3000,
 			label = "",
-			enabled = AltismManagerDB.showValorstonesEnabled or AltismManagerDB.showSparksEnabled or AltismManagerDB.showCatalystEnabled,
+			enabled = checkSectionFlags(1),
 			data = function(alt_data) return " " end,
 		},
-		flightstones = {
-			order = 5.1,
-			label = C.labels.flightstones,
-			enabled = AltismManagerDB.showValorstonesEnabled,
-			data = function(alt_data)
-				if alt_data.flightstones == 2000 then
-					return "|cFFec393c" .. tostring(alt_data.flightstones or "?") .. "|r"
-				else
-					return tostring(alt_data.flightstones or "?")
-				end
-			end,
-		},
 		sparks = {
-			order = 5.2,
+			order = 3020,
 			label = C.labels.sparks,
 			enabled = AltismManagerDB.showSparksEnabled,
 			data = function(alt_data)
@@ -1522,7 +1351,7 @@ function AltismManager:CreateContent()
 			end,
 		},
 		catalyst = {
-			order = 5.3,
+			order = 3030,
 			label = C.labels.catalyst,
 			enabled = AltismManagerDB.showCatalystEnabled,
 			data = function(alt_data)
@@ -1533,38 +1362,23 @@ function AltismManager:CreateContent()
 				end
 			end,
 		},
-		algariTokensOfMerit = {
-			order = 5.4,
-			label = C.labels.algariTokensOfMerit,
-			enabled = AltismManagerDB.showAlgariTokensOfMeritEnabled,
+		vaultTokens = {
+			order = 3040,
+			label = C.labels.vaultTokens,
+			enabled = AltismManagerDB.showVaultTokensEnabled,
 			data = function(alt_data)
-				return tostring(alt_data.algariTokensOfMerit or "?")
-			end,
-		},
-		etherealStrands = {
-			order = 5.5,
-			label = C.labels.etherealStrands,
-			enabled = AltismManagerDB.showEtherealStrandsEnabled,
-			data = function(alt_data)
-				if (not alt_data.ethereal_strands) or (not alt_data.ethereal_strands_max) then
-					return "|cFFbbbbbbUnknown|r"
-				end
-				if (alt_data.ethereal_strands == alt_data.ethereal_strands_max) then
-					return "|cFF39ec3c" .. tostring(alt_data.ethereal_strands or "?") .. " / " .. (alt_data.ethereal_strands_max or "?") .. "|r"
-				else
-					return tostring(alt_data.ethereal_strands or "?") .. " / " .. (alt_data.ethereal_strands_max or "?")
-				end
+				return tostring(alt_data.vaultTokens or "?")
 			end,
 		},
 		-- ! Offset
 		FAKE_FOR_OFFSET_delve = {
-			order = 6.011,
+			order = 4000,
 			label = "",
-			enabled = AltismManagerDB.showCofferKeysEnabled or AltismManagerDB.showCurrentCofferKeysEnabled or AltismManagerDB.showDelversBountyEnabled,
+			enabled = checkSectionFlags(2),
 			data = function(alt_data) return " " end,
 		},
 		cofferKeys = {
-			order = 6.012,
+			order = 4010,
 			label = C.labels.cofferKeys,
 			enabled = AltismManagerDB.showCofferKeysEnabled,
 			data = function(alt_data)
@@ -1574,19 +1388,8 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
 			end,
 		},
-		tww3CofferKeys = {
-			order = 6.012,
-			label = C.labels.tww3CofferKeys,
-			enabled = AltismManagerDB.showCofferKeysEnabled,
-			data = function(alt_data)
-				if (alt_data.tww3CofferKeysObtained == nil) then
-					return "|cFFbbbbbbUnknown|r"
-				end
-				return tostring(alt_data.tww3CofferKeysObtained or "?") .. " / 4"
-			end,
-		},
 		currentCofferKeys = {
-			order = 6.012,
+			order = 4030,
 			label = C.labels.currentCofferKeys,
 			enabled = AltismManagerDB.showCurrentCofferKeysEnabled,
 			data = function(alt_data)
@@ -1594,7 +1397,7 @@ function AltismManager:CreateContent()
 			end,
 		},
 		delversBounty = {
-			order = 6.013,
+			order = 4040,
 			label = C.labels.delversBounty,
 			enabled = AltismManagerDB.showDelversBountyEnabled,
 			data = function(alt_data)
@@ -1604,28 +1407,28 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.delversBountyClaimed and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
-		crackedKeystoneDone = {
-			order = 6.014,
-			label = C.labels.crackedKeystoneDone,
-			enabled = AltismManagerDB.showCrackedKeystoneEnabled,
-			data = function(alt_data)
-				if (alt_data.cracked_keystone_done == nil) then
-					return "|cFFbbbbbbUnknown|r"
-				end
-				return tostring(alt_data.cracked_keystone_done and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
-			end,
-		},
+		-- crackedKeystoneDone = {
+		-- 	order = 4050,
+		-- 	label = C.labels.crackedKeystoneDone,
+		-- 	enabled = AltismManagerDB.showCrackedKeystoneEnabled,
+		-- 	data = function(alt_data)
+		-- 		if (alt_data.cracked_keystone_done == nil) then
+		-- 			return "|cFFbbbbbbUnknown|r"
+		-- 		end
+		-- 		return tostring(alt_data.cracked_keystone_done and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+		-- 	end,
+		-- },
 		-- ! Offset
 		FAKE_FOR_OFFSET_3 = {
-			order = 6.04,
+			order = 5000,
 			label = "",
-			enabled = AltismManagerDB.showWhelplingCrestEnabled or AltismManagerDB.showDrakeCrestEnabled or AltismManagerDB.showWyrmCrestEnabled or AltismManagerDB.showAspectCrestEnabled,
+			enabled = checkSectionFlags(3),
 			data = function(alt_data) return " " end,
 		},
 		whelplings_crest = {
-			order = 6.1,
+			order = 5010,
 			label = C.labels.whelplingCrest,
-			enabled = AltismManagerDB.showWhelplingCrestEnabled,
+			enabled = AltismManagerDB.showTier1Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
@@ -1639,9 +1442,9 @@ function AltismManager:CreateContent()
 			end,
 		},
 		drakes_crest = {
-			order = 6.2,
+			order = 5020,
 			label = C.labels.drakeCrest,
-			enabled = AltismManagerDB.showDrakeCrestEnabled,
+			enabled = AltismManagerDB.showTier2Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
@@ -1655,9 +1458,9 @@ function AltismManager:CreateContent()
 			end,
 		},
 		wyrms_crest = {
-			order = 6.3,
+			order = 5030,
 			label = C.labels.wyrmCrest,
-			enabled = AltismManagerDB.showWyrmCrestEnabled,
+			enabled = AltismManagerDB.showTier3Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
@@ -1671,9 +1474,9 @@ function AltismManager:CreateContent()
 			end,
 		},
 		aspects_crest = {
-			order = 6.4,
+			order = 5040,
 			label = C.labels.aspectCrest,
-			enabled = AltismManagerDB.showAspectCrestEnabled,
+			enabled = AltismManagerDB.showTier4Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
@@ -1688,38 +1491,38 @@ function AltismManager:CreateContent()
 		},
 		-- ! Offset
 		FAKE_FOR_OFFSET_2 = {
-			order = 7,
+			order = 6000,
 			label = "",
-			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
+			enabled = checkSectionFlags(4),
 			data = function(alt_data) return " " end,
 		},
 		honor_points = {
-			order = 10,
+			order = 6010,
 			label = C.labels.honor,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return tostring(alt_data.honor_points or "?") end,
 		},
 		conquest_pts = {
-			order = 11,
+			order = 6020,
 			label = C.labels.conquest,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return (alt_data.conquest_total and tostring(alt_data.conquest_total) or "0")  end,
 		},
 		conquest_cap = {
-			order = 12,
+			order = 6030,
 			label = C.labels.conquestEarned,
 			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
 			data = function(alt_data) return (alt_data.conquest_earned and (tostring(alt_data.conquest_earned) .. " / " .. C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID).maxQuantity) or "?")  end, --   .. "/" .. "500"
 		},
 		-- ! Offset
 		BLANK_LINE = {
-			order = 13,
+			order = 7000,
 			label = " ",
-			enabled = AltismManagerDB.showWorldBossEnabled or AltismManagerDB.showUndermineEnabled,
+			enabled = checkSectionFlags(5),
 			data = function(alt_data) return " " end,
 		},
 		worldboss = {
-			order = 13.2,
+			order = 7010,
 			label = C.labels.worldBoss,
 			enabled = AltismManagerDB.showWorldBossEnabled,
 			data = function(alt_data)
@@ -1727,10 +1530,10 @@ function AltismManager:CreateContent()
 			end,
 		},
 		mythic = {
-			order = 14,
+			order = 7020,
 			label = C.labels.mythic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineMythicEnabled,
+			enabled = AltismManagerDB.showMythicRaidEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_mythic_savedata) then
 					return alt_data.raidsaves.undermine_mythic_savedata
@@ -1739,10 +1542,10 @@ function AltismManager:CreateContent()
 			end
 		},
 		heroic = {
-			order = 14.1,
+			order = 7030,
 			label = C.labels.heroic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineHeroicEnabled,
+			enabled = AltismManagerDB.showHeroicRaidEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_heroic_savedata) then
 					return alt_data.raidsaves.undermine_heroic_savedata
@@ -1751,10 +1554,10 @@ function AltismManager:CreateContent()
 			end
 		},
 		normal = {
-			order = 14.2,
+			order = 7040,
 			label = C.labels.normal,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showUndermineEnabled and AltismManagerDB.showUndermineNormalEnabled,
+			enabled = AltismManagerDB.showNormalRaidEnabled,
 			data = function(alt_data)
 				if (alt_data.raidsaves and alt_data.raidsaves.undermine_normal_savedata) then
 					return alt_data.raidsaves.undermine_normal_savedata

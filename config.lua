@@ -18,6 +18,9 @@ frame:SetHeight(SettingsPanel.Container:GetHeight() - 32)
 
 frame:SetScript("OnShow", function()
   local function createCheckbox(key)
+    local config = C.configData[key]
+    if not config then return nil end
+    
     local checkBox = CreateFrame("CheckButton", addonName .. "Check" .. key, frame, "InterfaceOptionsCheckButtonTemplate")
     checkBox:SetChecked(AltismManagerDB[key])
     checkBox:HookScript("OnClick", function(self)
@@ -29,17 +32,17 @@ frame:SetScript("OnShow", function()
 				PlaySound(857) -- SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF
 			end
     end)
-    if C.configTooltips[key] then
+    if config.tooltip then
       checkBox:HookScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(C.configTooltips[key])
+        GameTooltip:SetText(config.tooltip)
         GameTooltip:Show()
       end)
       checkBox:HookScript("OnLeave", function(self)
         GameTooltip:Hide()
       end)
     end
-    checkBox.Text:SetText(C.configLabels[key])
+    checkBox.Text:SetText(config.label)
     return checkBox
   end
 
@@ -86,7 +89,9 @@ frame:SetScript("OnShow", function()
   generalSection:SetText("General Options")
 
   local goldToggle = createCheckbox("showGoldEnabled")
-  goldToggle:SetPoint("TOPLEFT", generalSection, "BOTTOMLEFT", 0, -8)
+  if goldToggle then
+    goldToggle:SetPoint("TOPLEFT", generalSection, "BOTTOMLEFT", 0, -8)
+  end
 
   -------------------
   -- Vault Section --
@@ -107,33 +112,27 @@ frame:SetScript("OnShow", function()
   local showMythicPlusData = createCheckbox("showMythicPlusDataEnabled")
   showMythicPlusData:SetPoint("TOPLEFT", showMythicPlusVault, "BOTTOMLEFT", 0, -2)
 
-  ------------------------
-  -- Valorstone Section --
-  ------------------------
-  local valorstoneSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  valorstoneSection:SetPoint("BOTTOMLEFT", vaultSection, 0, -(rowHeight * 3))
-  valorstoneSection:SetText("Valorstone Section")
-
-  local showValorstones = createCheckbox("showValorstonesEnabled")
-  showValorstones:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", 0, -8)
-
+  --------------------------
+  -- Assorted PvM Section --
+  --------------------------
+  local assortedPvMSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
+  assortedPvMSection:SetPoint("BOTTOMLEFT", vaultSection, 0, -(rowHeight * 3))
+  assortedPvMSection:SetText("Assorted PvM Section")
+  
   local showSparks = createCheckbox("showSparksEnabled")
-  showSparks:SetPoint("TOPLEFT", showValorstones, "BOTTOMLEFT", 0, -2)
-
+  showSparks:SetPoint("TOPLEFT", assortedPvMSection, "BOTTOMLEFT", 0, -8)
+  
   local showCatalyst = createCheckbox("showCatalystEnabled")
-  showCatalyst:SetPoint("TOPLEFT", valorstoneSection, "BOTTOMLEFT", columnWidth, -8)
-
-  local showAlgariTokensOfMerit = createCheckbox("showAlgariTokensOfMeritEnabled")
-  showAlgariTokensOfMerit:SetPoint("TOPLEFT", showCatalyst, "BOTTOMLEFT", 0, -2)
-
-  local showEtherealStrands = createCheckbox("showEtherealStrandsEnabled")
-  showEtherealStrands:SetPoint("TOPLEFT", showSparks, "BOTTOMLEFT", 0, -2)
+  showCatalyst:SetPoint("TOPLEFT", showSparks, "BOTTOMLEFT", 0, -2)
+  
+  local showVaultTokensEnabled = createCheckbox("showVaultTokensEnabled")
+  showVaultTokensEnabled:SetPoint("TOPLEFT", assortedPvMSection, "BOTTOMLEFT", columnWidth, -8)
 
   -------------------
   -- Delve Section --
   -------------------
   local delveSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  delveSection:SetPoint("BOTTOMLEFT", valorstoneSection, 0, -(rowHeight * 4))
+  delveSection:SetPoint("BOTTOMLEFT", assortedPvMSection, 0, -(rowHeight * 3))
   delveSection:SetText("Delve Section")
 
   local showCofferKeys = createCheckbox("showCofferKeysEnabled")
@@ -145,8 +144,8 @@ frame:SetScript("OnShow", function()
   local showDelversBounty = createCheckbox("showDelversBountyEnabled")
   showDelversBounty:SetPoint("TOPLEFT", showCofferKeys, "BOTTOMLEFT", 0, -2)
 
-  local showCrackedKeystoneEnabled = createCheckbox("showCrackedKeystoneEnabled")
-  showCrackedKeystoneEnabled:SetPoint("TOPLEFT", showCurrentCofferKeys, "BOTTOMLEFT", 0, -2)
+  -- local showCrackedKeystoneEnabled = createCheckbox("showCrackedKeystoneEnabled")
+  -- showCrackedKeystoneEnabled:SetPoint("TOPLEFT", showCurrentCofferKeys, "BOTTOMLEFT", 0, -2)
 
   ---------------------------
   -- Upgrade Crest Section --
@@ -158,16 +157,16 @@ frame:SetScript("OnShow", function()
   local showRemainingCrests = createCheckbox("showRemainingCrestsEnabled")
   showRemainingCrests:SetPoint("TOPLEFT", upgradeCrestSection, "BOTTOMLEFT", 0, -8)
 
-  local showWhelplingCrest = createCheckbox("showWhelplingCrestEnabled")
+  local showWhelplingCrest = createCheckbox("showTier1Crest")
   showWhelplingCrest:SetPoint("TOPLEFT", showRemainingCrests, "BOTTOMLEFT", 0, -2)
 
-  local showDrakeCrest = createCheckbox("showDrakeCrestEnabled")
+  local showDrakeCrest = createCheckbox("showTier2Crest")
   showDrakeCrest:SetPoint("TOPLEFT", showRemainingCrests, "BOTTOMLEFT", columnWidth, -2)
 
-  local showWyrmCrest = createCheckbox("showWyrmCrestEnabled")
+  local showWyrmCrest = createCheckbox("showTier3Crest")
   showWyrmCrest:SetPoint("TOPLEFT", showWhelplingCrest, "BOTTOMLEFT", 0, -2)
 
-  local showAspectCrest = createCheckbox("showAspectCrestEnabled")
+  local showAspectCrest = createCheckbox("showTier4Crest")
   showAspectCrest:SetPoint("TOPLEFT", showDrakeCrest, "BOTTOMLEFT", 0, -2)
 
   -----------------
@@ -190,16 +189,13 @@ frame:SetScript("OnShow", function()
   local showWorldBoss = createCheckbox("showWorldBossEnabled")
   showWorldBoss:SetPoint("TOPLEFT", bossSection, "BOTTOMLEFT", 0, -8)
 
-  local showUndermine = createCheckbox("showUndermineEnabled")
-  showUndermine:SetPoint("TOPLEFT", showWorldBoss, "BOTTOMLEFT", 0, -2)
+  local showUndermineNormal = createCheckbox("showNormalRaidEnabled")
+  showUndermineNormal:SetPoint("TOPLEFT", showWorldBoss, "BOTTOMLEFT", 0, -2)
 
-  local showUndermineNormal = createCheckbox("showUndermineNormalEnabled")
-  showUndermineNormal:SetPoint("TOPLEFT", showUndermine, "BOTTOMLEFT", 16, -1)
-
-  local showUndermineHeroic = createCheckbox("showUndermineHeroicEnabled")
+  local showUndermineHeroic = createCheckbox("showHeroicRaidEnabled")
   showUndermineHeroic:SetPoint("TOPLEFT", showUndermineNormal, "BOTTOMLEFT", 0, -1)
 
-  local showUndermineMythic = createCheckbox("showUndermineMythicEnabled")
+  local showUndermineMythic = createCheckbox("showMythicRaidEnabled")
   showUndermineMythic:SetPoint("TOPLEFT", showUndermineHeroic, "BOTTOMLEFT", 0, -1)
 
   frame:SetScript("OnShow", nil)

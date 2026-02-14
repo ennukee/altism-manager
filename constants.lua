@@ -2,6 +2,7 @@ local addoName, addon = ...
 
 local C = {}
 
+-- ! ALL IDs NEED AN UPDATE FOR 12.0 WHEN AVAILABLE
 C.ids = {
   -- Lowest to highest tier crests, may not be called these names in the future
   weathered_crest = 3284,
@@ -9,24 +10,19 @@ C.ids = {
   runed_crest = 3288,
   gilded_crest = 3290,
   -- Important PvM currencies
-  ethereal_strands = 3278, -- ADD TO UI
   spark = 3141,
   catalyst = 3269,
-  vault_reroll_token = 248242,
+  vault_tokens = 248242,
   -- Delve
   coffer1 = 84736,
   coffer2 = 84737,
   coffer3 = 84738,
   coffer4 = 84739,
-  tww3_coffer1 = 91175,
-  tww3_coffer2 = 91176,
-  tww3_coffer3 = 91177,
-  tww3_coffer4 = 91178,
   currentCofferKeys = 3028,
   delversBounty = 86371,
   crackedKeystoneQuest = 90779,
   -- Raid
-  raid = 2406, -- NEED 11.2 UPDATE?
+  raid = 2406,
   worldBoss = 87345
 }
 
@@ -35,49 +31,172 @@ C.thresholds = {
   maxLootDelveVault = 8,
 }
 
+C.TraditionalRowValue = 20;
+C.sections = {
+  [0] = {
+    "showRaidVaultEnabled",
+    "showMythicPlusVaultEnabled",
+    "showDelveVaultEnabled",
+    "showMythicPlusDataEnabled",
+  },
+  [1] = {
+    "showSparksEnabled",
+    "showCatalystEnabled",
+    "showVaultTokensEnabled",
+  },
+  [2] = {
+    "showCurrentCofferKeysEnabled",
+    "showCofferKeysEnabled",
+    "showDelversBountyEnabled",
+    "showCrackedKeystoneEnabled",
+  },
+  [3] = {
+    "showTier1Crest",
+    "showTier2Crest",
+    "showTier3Crest",
+    "showTier4Crest",
+  },
+  [4] = {"showPVPCurrenciesEnabled"},
+  [5] = {
+    "showWorldBossEnabled",
+    "showMythicRaidEnabled",
+    "showHeroicRaidEnabled",
+    "showNormalRaidEnabled",
+  },
+}
+C.configData = {
+  showGoldEnabled = {
+    label = "Show Gold",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showRaidVaultEnabled = {
+    label = "Show Raid Vault",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showMythicPlusVaultEnabled = {
+    label = "Show Mythic+ Vault",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showDelveVaultEnabled = {
+    label = "Show Delve Vault",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showMythicPlusDataEnabled = {
+    label = "Show M+ Keystone/Rating",
+    default = true,
+    height = C.TraditionalRowValue * 2,
+  },
+  showSparksEnabled = {
+    label = "Show Fractured Spark of Fortune progress",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showCatalystEnabled = {
+    label = "Show Catalyst charges remaining",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showVaultTokensEnabled = {
+    label = "Show Vault Tokens",
+    default = true,
+    height = C.TraditionalRowValue,
+    tooltip = "Show the number of Vault Tokens in bags",
+  },
+  showCurrentCofferKeysEnabled = {
+    label = "Show Owned Coffer Keys",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showCofferKeysEnabled = {
+    label = "Show Weekly Coffer Keys earned",
+    default = false,
+    height = C.TraditionalRowValue,
+  },
+  showDelversBountyEnabled = {
+    label = "Show Delver's Bounty completion",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  -- showCrackedKeystoneEnabled = {
+  --   label = "Show Cracked Keystone one-time quest",
+  --   default = true,
+  --   height = C.TraditionalRowValue,
+  --   tooltip = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
+  -- },
+  showRemainingCrestsEnabled = {
+    label = "Show remaining crests to be earned up to cap",
+    default = true,
+    height = 0,
+    tooltip = "Whether or not to show additional earnable crests via a (+#) visual in the row (does nothing if crest cap is removed in Turbo Boost)",
+  },
+  showTier1Crest = {
+    label = "Show Weathered Crests",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showTier2Crest = {
+    label = "Show Carved Crests",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showTier3Crest = {
+    label = "Show Runed Crests",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showTier4Crest = {
+    label = "Show Gilded Crests",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showPVPCurrenciesEnabled = {
+    label = "Show PVP Currency",
+    default = false,
+    height = C.TraditionalRowValue * 3,
+  },
+  showWorldBossEnabled = {
+    label = "Show World Boss",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showMythicRaidEnabled = {
+    label = "Show Manaforge Omega Mythic",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showHeroicRaidEnabled = {
+    label = "Show Manaforge Omega Heroic",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showNormalRaidEnabled = {
+    label = "Show Manaforge Omega Normal",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+}
+
 C.pixelSizing = {
-  baseWindowSize = 710,
+  baseWindowSize = (function()
+    local total = 0
+    for _, cfg in pairs(C.configData) do
+      total = total + (cfg.height or 0)
+    end
+    total = total + (#C.sections * C.TraditionalRowValue)
+    total = total + 50 -- Generic padding for the dialog
+    return total
+  end)(),
   offsetX = 0,
   offsetY = 40,
   perAltX = 150,
-  ilvlTextSize = 8,
+  ilvlTextSize = 9,
   removeButtonSize = 12,
   minSizeX = 300,
 }
-
-local TraditionalRowValue = 20;
-C.toggles = {
-  gap = TraditionalRowValue,
-  gold = 20,
-
-  raidVault = TraditionalRowValue,
-  mythicPlusVault = TraditionalRowValue,
-  delveVault = TraditionalRowValue,
-  mythicPlus = TraditionalRowValue * 2,
-
-  valorstones = TraditionalRowValue,
-  spark = TraditionalRowValue,
-  catalyst = TraditionalRowValue,
-  algariTokensOfMerit = TraditionalRowValue,
-  etherealStrands = TraditionalRowValue,
-
-  cofferKeys = TraditionalRowValue,
-  currentCofferKeys = TraditionalRowValue * 2,
-  delverBounty = TraditionalRowValue,
-  crackedKeystoneDone = TraditionalRowValue,
-  
-  whelpling = TraditionalRowValue,
-  drake = TraditionalRowValue,
-  wyrm = TraditionalRowValue,
-  aspect = TraditionalRowValue,
-
-  pvp = TraditionalRowValue * 3,
-  
-  worldBoss = TraditionalRowValue,
-  mythic = TraditionalRowValue,
-  heroic = TraditionalRowValue,
-  normal = TraditionalRowValue,
-};
 
 C.labels = {
   -- [[ Left-column row labels ]] --
@@ -89,17 +208,14 @@ C.labels = {
   mythicKeystone = "Keystone |T525134:16:16:0:0|t",
   mythicPlusRating = "Mythic+ Rating",
   
-  flightstones = "Valorstones |T5868902:16:16:0:0|t",
   sparks = "Sparks |T5929747:16:16:0:0|t",
   catalyst = "Catalyst |T610613:16:16:0:0|t",
-  algariTokensOfMerit = "Vault Tokens |T2744751:16:16:0:0|t",
-  etherealStrands = "Eth. Strands |T5931153:16:16:0:0|t",
+  vaultTokens = "Vault Tokens |T2744751:16:16:0:0|t",
 
-  cofferKeys = "Weekly Shards",
-  tww3CofferKeys = "Weekly Keys",
+  cofferKeys = "Weekly Keys",
   currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
-  crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
+  -- crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
 
   upgradeCrests = "Upgrade Crests",
   whelplingCrest = "Weathered |T5872061:16:16:0:0|t",
@@ -118,66 +234,8 @@ C.labels = {
   normal = "Normal",
 }
 
-C.configLabels = {
-  showGoldEnabled = "Show Gold",
-
-  showRaidVaultEnabled = "Show Raid Vault",
-  showMythicPlusVaultEnabled = "Show Mythic+ Vault",
-  showDelveVaultEnabled = "Show Delve Vault",
-  showMythicPlusDataEnabled = "Show M+ Keystone/Rating",
-  
-  showValorstonesEnabled = "Show Valorstones",
-  showSparksEnabled = "Show Fractured Spark of Fortune progress",
-  showCatalystEnabled = "Show Catalyst charges remaining",
-  showAlgariTokensOfMeritEnabled = "Show Algari Tokens of Merit",
-  showEtherealStrandsEnabled = "Show Ethereal Strands",
-
-  showCofferKeysEnabled = "Show Weekly Coffer Keys earned",
-  showCurrentCofferKeysEnabled = "Show Owned Coffer Keys",
-  showDelversBountyEnabled = "Show Delver's Bounty completion",
-  showCrackedKeystoneEnabled = "Show Cracked Keystone one-time quest",
-
-  showRemainingCrestsEnabled = "Show remaining crests to be earned up to cap",
-  showWhelplingCrestEnabled = "Show Weathered Crests",
-  showDrakeCrestEnabled = "Show Carved Crests",
-  showWyrmCrestEnabled = "Show Runed Crests",
-  showAspectCrestEnabled = "Show Gilded Crests",
-
-  showPVPCurrenciesEnabled = "Show PVP Currency",
-
-  showWorldBossEnabled = "Show World Boss",
-  showUndermineEnabled = "Show Manaforge Omega",
-  showUndermineMythicEnabled = "Show Manaforge Omega Mythic",
-  showUndermineHeroicEnabled = "Show Manaforge Omega Heroic",
-  showUndermineNormalEnabled = "Show Manaforge Omega Normal",
-}
-
-C.configTooltips = {
-  showAlgariTokensOfMeritEnabled = "Show the number of Algari Tokens of Merit in bags (vault socket tokens)",
-  showUndermineEnabled = "If disabled, this will overwrite any N/H/M settings below and disable all of them.",
-  showRemainingCrestsEnabled = "Whether or not to show additional earnable crests via a (+#) visual in the row (does nothing if crest cap is removed in Turbo Boost)",
-  showCrackedKeystoneEnabled = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
-}
-
 C.misc = {
   minLevelToShow = 70,
 }
 
 addon.C = C
-
-C.classSpells = {
-  WARRIOR = 355, -- Taunt
-  PALADIN = 62124, -- Hand of Reckoning
-  MAGE = 108853, -- Fire Blast
-  EVOKER = 361469, -- Living Flame
-  DEMONHUNTER = 185123, -- Throw Glaive
-  DRUID = 5176, -- Wrath
-  MONK = 115546, -- Provoke
-  PRIEST = 589, -- SW:P
-  ROGUE = 36554, -- Poisoned Knife
-  SHAMAN = 188389, -- Lightning Bolt
-  DEATHKNIGHT = 49576, -- Death Grip
-
-  HUNTER = 193455, -- Cobra Shot
-  WARLOCK = 686, -- Shadow Bolt
-}
