@@ -908,6 +908,8 @@ function AltismManager:CollectData()
 	local wyrms_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.runed_crest);
 	local aspects_crest = GetCurrencyAmount(C.ids.gilded_crest);
 	local aspects_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.gilded_crest);
+	local tier5_crest = GetCurrencyAmount(C.ids.myth_crest);
+	local tier5_info = C_CurrencyInfo.GetCurrencyInfo(C.ids.myth_crest);
 	local mplus_data = C_PlayerInfo.GetPlayerMythicPlusRatingSummary('player')
 
 	local sparkData = C_CurrencyInfo.GetCurrencyInfo(C.ids.spark);
@@ -959,6 +961,9 @@ function AltismManager:CollectData()
 	char_table.aspects_crest = aspects_crest;
 	char_table.aspects_max = aspects_info.maxQuantity;
 	char_table.aspects_earned = aspects_info.totalEarned;
+	char_table.tier5_crest = tier5_crest;
+	char_table.tier5_max = tier5_info.maxQuantity;
+	char_table.tier5_earned = tier5_info.totalEarned;
 	char_table.flightstones = GetCurrencyAmount(3008);
 	char_table.honor_points = GetCurrencyAmount(1792);
 	char_table.cofferKeysObtained = b2n(cofferKey1) + b2n(cofferKey2) + b2n(cofferKey3) + b2n(cofferKey4)
@@ -1431,7 +1436,7 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showTier1Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
 					else 
@@ -1447,7 +1452,7 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showTier2Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.drakes_max == alt_data.drakes_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
 					else 
@@ -1463,7 +1468,7 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showTier3Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
 					else 
@@ -1479,7 +1484,7 @@ function AltismManager:CreateContent()
 			enabled = AltismManagerDB.showTier4Crest,
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (false and AltismManagerDB.showRemainingCrestsEnabled) then
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
 					if (alt_data.aspects_max == alt_data.aspects_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
 					else 
@@ -1487,6 +1492,22 @@ function AltismManager:CreateContent()
 					end
 				end
 				return tostring(alt_data.aspects_crest or "?")
+			end,
+		},
+		myth_crest = {
+			order = 5050,
+			label = C.labels.mythCrest,
+			enabled = AltismManagerDB.showTier5Crest,
+			data = function(alt_data)
+				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
+				if (AltismManagerDB.showRemainingCrestsEnabled) then
+					if (alt_data.tier5_max == alt_data.tier5_earned) then
+						return "|cFF39ec3c" .. tostring(alt_data.tier5_crest or "?") .. "|r"
+					else 
+						return tostring(alt_data.tier5_crest or "?").." |cffcccccc(+"..(alt_data.tier5_max - alt_data.tier5_earned)..")|r"
+					end
+				end
+				return tostring(alt_data.tier5_crest or "?")
 			end,
 		},
 		-- ! Offset
