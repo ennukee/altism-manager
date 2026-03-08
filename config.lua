@@ -79,8 +79,38 @@ frame:SetScript("OnShow", function()
   end)
   -- ! End reload button creation
 
-  local columnWidth = 250;
+  local columnWidth = 300;
   local rowHeight = 30;
+  local lastSectionRowCount = nil;
+
+  local function createCheckboxSection(sectionLabel, configKeys, relativeTo)
+    print("Creating section: " .. sectionLabel .. " with " .. #configKeys .. " checkboxes. Previous section had " .. (lastSectionRowCount or "nil") .. " rows.")
+    local sectionTitle = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
+    sectionTitle:SetPoint("BOTTOMLEFT", relativeTo, 0, -(rowHeight * (lastSectionRowCount or 2)))
+    sectionTitle:SetText(sectionLabel)
+
+    local lastAnchor = nil
+    for i, key in ipairs(configKeys) do
+      local checkbox = createCheckbox(key)
+      if checkbox then
+        if i % 2 == 1 then
+          local anchor = lastAnchor or sectionTitle
+          local offset = lastAnchor and -rowHeight or (math.floor(-rowHeight / 2) - 4)
+          checkbox:SetPoint("TOPLEFT", anchor, "TOPLEFT", 0, offset)
+          lastAnchor = checkbox
+        else
+          local anchor = lastAnchor or sectionTitle
+          checkbox:SetPoint("TOPLEFT", anchor, "TOPLEFT", columnWidth, 0)
+        end
+      else
+        print("|cffff0000AltismManager [error]|r: Config data for key '" .. key .. "' not found.")
+      end
+    end
+
+    lastSectionRowCount = math.ceil(#configKeys / 2) + 1
+    return sectionTitle
+  end
+
   ---------------------
   -- Generic Section --
   ---------------------
@@ -91,112 +121,24 @@ frame:SetScript("OnShow", function()
   local goldToggle = createCheckbox("showGoldEnabled")
   if goldToggle then
     goldToggle:SetPoint("TOPLEFT", generalSection, "BOTTOMLEFT", 0, -8)
+  else
+    print("|cffff0000[AltismManager][error]|r: Config toggle for gold missing")
   end
 
-  -------------------
-  -- Vault Section --
-  -------------------
-  local vaultSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  vaultSection:SetPoint("BOTTOMLEFT", generalSection, 0, -(rowHeight * 2))
-  vaultSection:SetText("Vault Section")
-
-  local showRaidVault = createCheckbox("showRaidVaultEnabled")
-  showRaidVault:SetPoint("TOPLEFT", vaultSection, "BOTTOMLEFT", 0, -8)
-
-  local showMythicPlusVault = createCheckbox("showMythicPlusVaultEnabled")
-  showMythicPlusVault:SetPoint("TOPLEFT", vaultSection, "BOTTOMLEFT", columnWidth, -8)
-
-  local showDelveVault = createCheckbox("showDelveVaultEnabled")
-  showDelveVault:SetPoint("TOPLEFT", showRaidVault, "BOTTOMLEFT", 0, -2)
-
-  local showMythicPlusData = createCheckbox("showMythicPlusDataEnabled")
-  showMythicPlusData:SetPoint("TOPLEFT", showMythicPlusVault, "BOTTOMLEFT", 0, -2)
-
-  --------------------------
-  -- Assorted PvM Section --
-  --------------------------
-  local assortedPvMSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  assortedPvMSection:SetPoint("BOTTOMLEFT", vaultSection, 0, -(rowHeight * 3))
-  assortedPvMSection:SetText("Assorted PvM Section")
-  
-  local showSparks = createCheckbox("showSparksEnabled")
-  showSparks:SetPoint("TOPLEFT", assortedPvMSection, "BOTTOMLEFT", 0, -8)
-  
-  local showCatalyst = createCheckbox("showCatalystEnabled")
-  showCatalyst:SetPoint("TOPLEFT", showSparks, "BOTTOMLEFT", 0, -2)
-  
-  local showVaultTokensEnabled = createCheckbox("showVaultTokensEnabled")
-  showVaultTokensEnabled:SetPoint("TOPLEFT", assortedPvMSection, "BOTTOMLEFT", columnWidth, -8)
-
-  -------------------
-  -- Delve Section --
-  -------------------
-  local delveSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  delveSection:SetPoint("BOTTOMLEFT", assortedPvMSection, 0, -(rowHeight * 3))
-  delveSection:SetText("Delve Section")
-
-  local showCofferKeys = createCheckbox("showCofferKeysEnabled")
-  showCofferKeys:SetPoint("TOPLEFT", delveSection, "BOTTOMLEFT", 0, -8)
-
-  local showCurrentCofferKeys = createCheckbox("showCurrentCofferKeysEnabled")
-  showCurrentCofferKeys:SetPoint("TOPLEFT", delveSection, "BOTTOMLEFT", columnWidth, -8);
-
-  local showDelversBounty = createCheckbox("showDelversBountyEnabled")
-  showDelversBounty:SetPoint("TOPLEFT", showCofferKeys, "BOTTOMLEFT", 0, -2)
-
-  -- local showCrackedKeystoneEnabled = createCheckbox("showCrackedKeystoneEnabled")
-  -- showCrackedKeystoneEnabled:SetPoint("TOPLEFT", showCurrentCofferKeys, "BOTTOMLEFT", 0, -2)
-
-  ---------------------------
-  -- Upgrade Crest Section --
-  ---------------------------
-  local upgradeCrestSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  upgradeCrestSection:SetPoint("BOTTOMLEFT", delveSection, 0, -(rowHeight * 3))
-  upgradeCrestSection:SetText("Upgrade Crest Section")
-
-  local showRemainingCrests = createCheckbox("showRemainingCrestsEnabled")
-  showRemainingCrests:SetPoint("TOPLEFT", upgradeCrestSection, "BOTTOMLEFT", 0, -8)
-
-  local showWhelplingCrest = createCheckbox("showTier1Crest")
-  showWhelplingCrest:SetPoint("TOPLEFT", showRemainingCrests, "BOTTOMLEFT", 0, -2)
-
-  local showDrakeCrest = createCheckbox("showTier2Crest")
-  showDrakeCrest:SetPoint("TOPLEFT", showRemainingCrests, "BOTTOMLEFT", columnWidth, -2)
-
-  local showWyrmCrest = createCheckbox("showTier3Crest")
-  showWyrmCrest:SetPoint("TOPLEFT", showWhelplingCrest, "BOTTOMLEFT", 0, -2)
-
-  local showAspectCrest = createCheckbox("showTier4Crest")
-  showAspectCrest:SetPoint("TOPLEFT", showDrakeCrest, "BOTTOMLEFT", 0, -2)
-
-  -----------------
-  -- PVP Section --
-  -----------------
-  local pvpSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  pvpSection:SetPoint("BOTTOMLEFT", upgradeCrestSection, 0, -(rowHeight * 4))
-  pvpSection:SetText("PVP Currency Section")
-
-  local showPVPCurrencies = createCheckbox("showPVPCurrenciesEnabled")
-  showPVPCurrencies:SetPoint("TOPLEFT", pvpSection, "BOTTOMLEFT", 0, -8)
-
-  ------------------
-  -- Boss Section --
-  ------------------
-  local bossSection = frame:CreateFontString("ARTWORK", nil, "GameFontNormal")
-  bossSection:SetPoint("BOTTOMLEFT", pvpSection, 0, -(rowHeight * 2))
-  bossSection:SetText("Boss Section")
-
-  local showWorldBoss = createCheckbox("showWorldBossEnabled")
-  showWorldBoss:SetPoint("TOPLEFT", bossSection, "BOTTOMLEFT", 0, -8)
-
-  local showUndermineNormal = createCheckbox("showNormalRaidEnabled")
-  showUndermineNormal:SetPoint("TOPLEFT", showWorldBoss, "BOTTOMLEFT", 0, -2)
-
-  local showUndermineHeroic = createCheckbox("showHeroicRaidEnabled")
-  showUndermineHeroic:SetPoint("TOPLEFT", showUndermineNormal, "BOTTOMLEFT", 0, -1)
-
-  local showUndermineMythic = createCheckbox("showMythicRaidEnabled")
-  showUndermineMythic:SetPoint("TOPLEFT", showUndermineHeroic, "BOTTOMLEFT", 0, -1)
+  local vaultSection = createCheckboxSection(
+    "Vault Section", C.sections[C.sectionNames["Vault"]], generalSection)
+  local assortedPvMSection = createCheckboxSection(
+    "Assorted PvM Section", C.sections[C.sectionNames["Misc"]], vaultSection)
+  local delveSection = createCheckboxSection(
+    "Delve Section", C.sections[C.sectionNames["Delve"]], assortedPvMSection)
+  local worldContentSection = createCheckboxSection(
+    "World Content Section", C.sections[C.sectionNames["World Content"]], delveSection)
+  local upgradeCrestSection = createCheckboxSection(
+    "Upgrade Crest Section", C.sections[C.sectionNames["Crests"]], worldContentSection)
+  local pvpSection = createCheckboxSection(
+    "PVP Section", C.sections[C.sectionNames["PVP"]], upgradeCrestSection)
+  createCheckboxSection(
+    "Boss Section", C.sections[C.sectionNames["Raids"]], pvpSection)
 
   frame:SetScript("OnShow", nil)
 end)

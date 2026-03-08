@@ -19,12 +19,56 @@ C.ids = {
   coffer2 = 84737,
   coffer3 = 84738,
   coffer4 = 84739,
+  -- World Content
+  soireeRunestone1 = 90574,
+  soireeRunestone2 = 90575,
+  soireeRunestone3 = 90573,
+  soireeRunestone4 = 90576,
+  abundance = 89507,
+  memoryOfHarandar1 = 88993,
+  memoryOfHarandar2 = 88994,
+  memoryOfHarandar3 = 88995,
+  memoryOfHarandar4 = 88996,
+  memoryOfHarandar5 = 88997,
+  stormarionAssault = 90962,
+  -- currentCompleteCofferKeys = 3028, // TODO
   currentCofferKeys = 3310,
   delversBounty = 86371,
   crackedKeystoneQuest = 90779,
   -- Raid
   raid = 2406,
-  worldBoss = 87345
+  worldBoss = 87345,
+  -- Expansion-zones
+  specialAssignments = {
+    {
+      94391, -- Harandar "Push Back the Light"
+      93013, -- Harandar "Push Back the Light" (unlocked)
+    },
+    {
+      94390, -- Harandar "A Hunter's Regret"
+      92063, -- Harandar "A Hunter's Regret" (unlocked)
+    },
+    {
+      94743, -- Voidstorm "Precision Excision"
+      93438, -- Voidstorm "Precision Excision" (unlocked)
+    },
+    {
+      94795, -- Voidstorm "Agents of the Shield"
+      93244, -- Voidstorm "Agents of the Shield" (unlocked)
+    },
+    {
+      94865, -- Zul'Aman "What Remains of a Temple Broken"
+      91390, -- Zul'Aman "What Remains of a Temple Broken" (unlocked)
+    },
+    {
+      94866, -- Zul'Aman "Once Ours More!"
+      91796, -- Zul'Aman "Once Ours More!" (unlocked)
+    },
+    {
+      92848, -- Eversong "The Grand Magister's Drink"
+      92145, -- Eversong "The Grand Magister's Drink" (unlocked)
+    }
+  },
 }
 
 C.thresholds = {
@@ -32,7 +76,16 @@ C.thresholds = {
   maxLootDelveVault = 8,
 }
 
-C.TraditionalRowValue = 20;
+C.TraditionalRowValue = 20
+C.sectionNames = {
+  ["Vault"] = 0,
+  ["Misc"] = 1,
+  ["Delve"] = 2,
+  ["World Content"] = 3,
+  ["Crests"] = 4,
+  ["PVP"] = 5,
+  ["Raids"] = 6,
+}
 C.sections = {
   [0] = {
     "showRaidVaultEnabled",
@@ -52,14 +105,21 @@ C.sections = {
     "showCrackedKeystoneEnabled",
   },
   [3] = {
+    "showSoireeRunestoneEnabled",
+    "showAbundanceEnabled",
+    "showMemoryOfHarandarEnabled",
+    "showStormarionAssaultEnabled",
+    "showSpecialAssignmentsEnabled",
+  },
+  [4] = {
     "showTier1Crest",
     "showTier2Crest",
     "showTier3Crest",
     "showTier4Crest",
     "showTier5Crest",
   },
-  [4] = {"showPVPCurrenciesEnabled"},
-  [5] = {
+  [5] = {"showPVPCurrenciesEnabled"},
+  [6] = {
     "showWorldBossEnabled",
     "showMythicRaidEnabled",
     "showHeroicRaidEnabled",
@@ -129,6 +189,31 @@ C.configData = {
   --   height = C.TraditionalRowValue,
   --   tooltip = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
   -- },
+  showSoireeRunestoneEnabled = {
+    label = "Show Eversong Runestone completion",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showAbundanceEnabled = {
+    label = "Show Abundance completion",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showMemoryOfHarandarEnabled = {
+    label = "Show Memory of Harandar completion",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showStormarionAssaultEnabled = {
+    label = "Show Stormarion Assault completion",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
+  showSpecialAssignmentsEnabled = {
+    label = "Show Special Assignments remaining on map",
+    default = true,
+    height = C.TraditionalRowValue,
+  },
   showRemainingCrestsEnabled = {
     label = "Show remaining crests to be earned up to cap",
     default = true,
@@ -224,6 +309,12 @@ C.labels = {
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
   -- crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
 
+  soireeRunestone = "Eversong Runestone",
+  abundance = "Abundance",
+  memoryOfHarandar = "Harandar Memory",
+  stormarionAssault = "Stormarion Assault",
+  specialAssignments = "Special Asgmt",
+
   upgradeCrests = "Upgrade Crests",
   whelplingCrest = "Adventurer |T7639517:16:16:0:0|t",
   drakeCrest = "Veteran |T7639525:16:16:0:0|t",
@@ -243,7 +334,7 @@ C.labels = {
 }
 
 C.misc = {
-  minLevelToShow = 70,
+  minLevelToShow = 80,
 }
 
 addon.C = C

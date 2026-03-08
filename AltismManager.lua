@@ -231,7 +231,7 @@ minimapButton:SetFrameLevel(8)
 
 -- Set the minimap button texture
 local iconTexture = minimapButton:CreateTexture(nil, "BACKGROUND")
-iconTexture:SetTexture("Interface\\ICONS\\inv_misc_grouplooking")
+iconTexture:SetTexture("Interface\\ICONS\\achievement_guildperk_everybodysfriend")
 iconTexture:SetSize(20, 20)
 iconTexture:SetPoint("CENTER", 0, 0)
 
@@ -932,6 +932,41 @@ function AltismManager:CollectData()
 		end
 	end
 
+	local incompleteSpecialAssignments = 0
+	for _, questPair in ipairs(C.ids.specialAssignments) do
+		for _, questID in ipairs(questPair) do
+			local questInfo = C_QuestLog.GetQuestObjectives(questID)
+			local isActive = C_TaskQuest.IsActive and C_TaskQuest.IsActive(questID)
+			if questInfo and questInfo[1] and questInfo[1].text ~= "" and questInfo[1].text ~= nil
+				and (questInfo[1].objectiveType == 14 or isActive)
+				and not C_QuestLog.IsQuestFlaggedCompleted(questID) then
+					-- print("Special assignment incomplete: " .. questID)
+					incompleteSpecialAssignments = incompleteSpecialAssignments + 1
+					break
+			end
+		end
+	end
+
+	local soireeCompleted = C_QuestLog.IsQuestFlaggedCompleted(C.ids.soireeRunestone1)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.soireeRunestone2)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.soireeRunestone3)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.soireeRunestone4);
+	local memoryCompleted = C_QuestLog.IsQuestFlaggedCompleted(C.ids.memoryOfHarandar1)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.memoryOfHarandar2)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.memoryOfHarandar3)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.memoryOfHarandar4)
+		or C_QuestLog.IsQuestFlaggedCompleted(C.ids.memoryOfHarandar5);
+
+	
+
+	char_table.weeklies = {
+		stormarionAssault = C_QuestLog.IsQuestFlaggedCompleted(C.ids.stormarionAssault),
+		soireeRunestone = soireeCompleted,
+		abundance = C_QuestLog.IsQuestFlaggedCompleted(C.ids.abundance),
+		memoryOfHarandar = memoryCompleted,
+		specialAssignments = incompleteSpecialAssignments,
+	}
+
 	char_table.currentCofferKeys = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeys).quantity;
 	char_table.delversBountyClaimed = C_QuestLog.IsQuestFlaggedCompleted(C.ids.delversBounty);
 
@@ -1340,7 +1375,7 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET = {
 			order = 3000,
 			label = "",
-			enabled = checkSectionFlags(1),
+			enabled = checkSectionFlags(C.sectionNames["Misc"]),
 			data = function(alt_data) return " " end,
 		},
 		sparks = {
@@ -1379,7 +1414,7 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_delve = {
 			order = 4000,
 			label = "",
-			enabled = checkSectionFlags(2),
+			enabled = checkSectionFlags(C.sectionNames["Delve"]),
 			data = function(alt_data) return " " end,
 		},
 		cofferKeys = {
@@ -1412,6 +1447,72 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.delversBountyClaimed and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
+		-- ! Offset
+		FAKE_FOR_OFFSET_WORLD_CONTENT = {
+			order = 4500,
+			label = "",
+			enabled = checkSectionFlags(C.sectionNames["World Content"]),
+			data = function(alt_data) return " " end,
+		},
+		soiree_runestone = {
+			order = 4501,
+			label = C.labels.soireeRunestone,
+			enabled = AltismManagerDB.showSoireeRunestoneEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.soireeRunestone == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.weeklies.soireeRunestone and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		abundance = {
+			order = 4502,
+			label = C.labels.abundance,
+			enabled = AltismManagerDB.showAbundanceEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.abundance == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.weeklies.abundance and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		memory_of_harandar = {
+			order = 4503,
+			label = C.labels.memoryOfHarandar,
+			enabled = AltismManagerDB.showMemoryOfHarandarEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.memoryOfHarandar == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.weeklies.memoryOfHarandar and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		stormarion_assault = {
+			order = 4504,
+			label = C.labels.stormarionAssault,
+			enabled = AltismManagerDB.showStormarionAssaultEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.stormarionAssault == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.weeklies.stormarionAssault and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		special_assignments = {
+			order = 4505,
+			label = C.labels.specialAssignments,
+			enabled = AltismManagerDB.showSpecialAssignmentsEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.specialAssignments == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				local remainingAssignments = alt_data.weeklies.specialAssignments
+				if remainingAssignments > 0 then
+					return tostring(2 - remainingAssignments) .. " / 2"
+				end
+				return "|cFF39ec3cDone|r"
+			end,
+		},
 		-- crackedKeystoneDone = {
 		-- 	order = 4050,
 		-- 	label = C.labels.crackedKeystoneDone,
@@ -1427,7 +1528,7 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_3 = {
 			order = 5000,
 			label = "",
-			enabled = checkSectionFlags(3),
+			enabled = checkSectionFlags(C.sectionNames["Crests"]),
 			data = function(alt_data) return " " end,
 		},
 		whelplings_crest = {
@@ -1514,7 +1615,7 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_2 = {
 			order = 6000,
 			label = "",
-			enabled = checkSectionFlags(4),
+			enabled = checkSectionFlags(C.sectionNames["PVP"]),
 			data = function(alt_data) return " " end,
 		},
 		honor_points = {
@@ -1539,7 +1640,7 @@ function AltismManager:CreateContent()
 		BLANK_LINE = {
 			order = 7000,
 			label = " ",
-			enabled = checkSectionFlags(5),
+			enabled = checkSectionFlags(C.sectionNames["Raids"]),
 			data = function(alt_data) return " " end,
 		},
 		worldboss = {
