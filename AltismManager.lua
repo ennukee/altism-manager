@@ -1476,17 +1476,17 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.weeklies.abundance and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
-		memory_of_harandar = {
-			order = 4503,
-			label = C.labels.memoryOfHarandar,
-			enabled = AltismManagerDB.showMemoryOfHarandarEnabled,
-			data = function(alt_data)
-				if (alt_data.weeklies == nil or alt_data.weeklies.memoryOfHarandar == nil) then
-					return "|cFFbbbbbbUnknown|r"
-				end
-				return tostring(alt_data.weeklies.memoryOfHarandar and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
-			end,
-		},
+		-- memory_of_harandar = {
+		-- 	order = 4503,
+		-- 	label = C.labels.memoryOfHarandar,
+		-- 	enabled = AltismManagerDB.showMemoryOfHarandarEnabled,
+		-- 	data = function(alt_data)
+		-- 		if (alt_data.weeklies == nil or alt_data.weeklies.memoryOfHarandar == nil) then
+		-- 			return "|cFFbbbbbbUnknown|r"
+		-- 		end
+		-- 		return tostring(alt_data.weeklies.memoryOfHarandar and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+		-- 	end,
+		-- },
 		stormarion_assault = {
 			order = 4504,
 			label = C.labels.stormarionAssault,
