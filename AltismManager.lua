@@ -821,7 +821,7 @@ function AltismManager:CollectData()
 	local weeklyDelve = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.World);
 	if (#weeklyDelve < 3) then
 		-- print("[AltismManager]: Issue retrieving delve vault data, values may be inaccurate.")
-		char_table.delvevault = {"X", "X", "X"}
+		char_table.delvevault = {-1, -1, -1}
 	else
 		local delveVaultOutput = {}
 		table.insert(delveVaultOutput, weeklyDelve[1].level or "X")
@@ -835,7 +835,7 @@ function AltismManager:CollectData()
 	char_table.hardmode_tazavesh_completed = false
 	if (#weeklyKeys < 3) then
 		-- print("[AltismManager]: Issue retrieving M+ vault data, values may be inaccurate.")
-		char_table.mythicplusvault = {"X", "X", "X"}
+		char_table.mythicplusvault = {-1, -1, -1}
 	else
 		local mythicPlusVaultOutput = {}
 		if (weeklyKeys[3].progress == #run_history + 1) then
@@ -1222,7 +1222,7 @@ function AltismManager:MythicVaultSummaryString(alt_data)
 	-- local total_runs = #sorted_history
 	local result = ""
 
-	if alt_data.mythicplusvault[1] == "M0" then
+	if type(alt_data.mythicplusvault[1]) == "string" and alt_data.mythicplusvault[1] == "M0" then
 		result = result .. "0"
 	elseif alt_data.mythicplusvault[1] >= C.thresholds.mythTrackKeyVault then
 		result = "|cFF00FF00" .. tostring(alt_data.mythicplusvault[1]) .. "|r"
@@ -1231,7 +1231,7 @@ function AltismManager:MythicVaultSummaryString(alt_data)
 	else
 		result = result .. "|cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[2] == "M0" then
+	if type(alt_data.mythicplusvault[2]) == "string" and alt_data.mythicplusvault[2] == "M0" then
 		result = result .. " / 0"
 	elseif alt_data.mythicplusvault[2] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[2]) .. "|r"
@@ -1240,7 +1240,7 @@ function AltismManager:MythicVaultSummaryString(alt_data)
 	else
 		result = result .. " / |cFF999999X|r"
 	end
-	if alt_data.mythicplusvault[3] == "M0" then
+	if type(alt_data.mythicplusvault[3]) == "string" and alt_data.mythicplusvault[3] == "M0" then
 		result = result .. " / 0"
 	elseif alt_data.mythicplusvault[3] >= C.thresholds.mythTrackKeyVault then
 		result = result .. " / |cFF00FF00" .. tostring(alt_data.mythicplusvault[3]) .. "|r"
