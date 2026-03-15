@@ -67,6 +67,10 @@ C.ids = {
     {
       92848, -- Eversong "The Grand Magister's Drink"
       92145, -- Eversong "The Grand Magister's Drink" (unlocked)
+    },
+    {
+      95435, -- Eversong "Shade and Claw"
+      92139, -- Eversong "Shade and Claw" (unlocked)
     }
   },
 }
