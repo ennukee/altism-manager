@@ -736,6 +736,10 @@ function AltismManager:CollectData()
 				end
 				if slotItemID == 180653 then
 					local itemString = slotLink:match("|Hkeystone:([0-9:]+)|h(%b[])|h")
+					if (not itemString) then
+						-- print("Failed to parse keystone item link:", slotLink)
+						break
+					end
 					local info = { strsplit(":", itemString) }
 					dungeon = tonumber(info[2])
 					if not dungeon then dungeon = nil end
@@ -919,10 +923,11 @@ function AltismManager:CollectData()
 	local catalystData = C_CurrencyInfo.GetCurrencyInfo(C.ids.catalyst)
 	char_table.currentCatalyst = catalystData.quantity;
 
-	local cofferKey1 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer1)
-	local cofferKey2 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer2)
-	local cofferKey3 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer3)
-	local cofferKey4 = C_QuestLog.IsQuestFlaggedCompleted(C.ids.coffer4)
+	local cofferKeyShards = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeyShards);
+	local shardsThisWeek = cofferKeyShards.quantityEarnedThisWeek;
+	local shardsThisWeekCap = cofferKeyShards.maxWeeklyQuantity;
+	char_table.currentCofferKeyShards = shardsThisWeek;
+	char_table.currentCofferKeyShardsCap = shardsThisWeekCap;
 
 	local function b2n(bool)
 		if bool then
@@ -1436,6 +1441,17 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.currentCofferKeys or "?")
 			end,
 		},
+		weeklyCofferShards = {
+			order = 4035,
+			label = C.labels.currentCofferKeyShards,
+			enabled = AltismManagerDB.showCurrentCofferKeysEnabled,
+			data = function(alt_data)
+				if (alt_data.currentCofferKeyShards == nil or alt_data.currentCofferKeyShardsCap == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.currentCofferKeyShards or "?") .. " / " .. tostring(alt_data.currentCofferKeyShardsCap or "?")
+			end,
+		},
 		delversBounty = {
 			order = 4040,
 			label = C.labels.delversBounty,
@@ -1643,14 +1659,14 @@ function AltismManager:CreateContent()
 			enabled = checkSectionFlags(C.sectionNames["Raids"]),
 			data = function(alt_data) return " " end,
 		},
-		worldboss = {
-			order = 7010,
-			label = C.labels.worldBoss,
-			enabled = AltismManagerDB.showWorldBossEnabled,
-			data = function(alt_data)
-				if alt_data.worldboss == nil then return "|cffff0000Available|r" else return "|cff00ff00Defeated|r" end 
-			end,
-		},
+		-- worldboss = {
+		-- 	order = 7010,
+		-- 	label = C.labels.worldBoss,
+		-- 	enabled = AltismManagerDB.showWorldBossEnabled,
+		-- 	data = function(alt_data)
+		-- 		if alt_data.worldboss == nil then return "|cffff0000Available|r" else return "|cff00ff00Defeated|r" end 
+		-- 	end,
+		-- },
 		mythic = {
 			order = 7020,
 			label = C.labels.mythic,

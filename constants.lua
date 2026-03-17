@@ -15,10 +15,8 @@ C.ids = {
   catalyst = 3378,
   vault_tokens = 248242,
   -- Delve
-  coffer1 = 84736,
-  coffer2 = 84737,
-  coffer3 = 84738,
-  coffer4 = 84739,
+  currentCofferKeys = 3028,
+  currentCofferKeyShards = 3310,
   -- World Content
   soireeRunestone1 = 90574,
   soireeRunestone2 = 90575,
@@ -32,9 +30,8 @@ C.ids = {
   memoryOfHarandar5 = 0,--88997,
   stormarionAssault = 90962,
   -- currentCompleteCofferKeys = 3028, // TODO
-  currentCofferKeys = 3310,
   delversBounty = 86371,
-  crackedKeystoneQuest = 90779,
+  crackedKeystoneQuest = 92600,
   -- Raid
   raid = 2406,
   worldBoss = 87345,
@@ -180,7 +177,7 @@ C.configData = {
   showCofferKeysEnabled = {
     label = "Show Weekly Coffer Keys earned",
     default = false,
-    height = C.TraditionalRowValue,
+    height = C.TraditionalRowValue * 2,
   },
   showDelversBountyEnabled = {
     label = "Show Delver's Bounty completion",
@@ -309,7 +306,8 @@ C.labels = {
   vaultTokens = "Vault Tokens |T2744751:16:16:0:0|t",
 
   cofferKeys = "Weekly Keys",
-  currentCofferKeys = "Current Shards |T133016:16:16:0:0|t",
+  currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",
+  currentCofferKeyShards = "Weekly Shards |T133016:16:16:0:0|t",
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
   -- crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
 
