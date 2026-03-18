@@ -1422,17 +1422,6 @@ function AltismManager:CreateContent()
 			enabled = checkSectionFlags(C.sectionNames["Delve"]),
 			data = function(alt_data) return " " end,
 		},
-		cofferKeys = {
-			order = 4010,
-			label = C.labels.cofferKeys,
-			enabled = AltismManagerDB.showCofferKeysEnabled,
-			data = function(alt_data)
-				if (alt_data.cofferKeysObtained == nil) then
-					return "|cFFbbbbbbUnknown|r"
-				end
-				return tostring(alt_data.cofferKeysObtained or "?") .. " / 4"
-			end,
-		},
 		currentCofferKeys = {
 			order = 4030,
 			label = C.labels.currentCofferKeys,
