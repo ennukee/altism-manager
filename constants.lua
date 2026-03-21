@@ -34,6 +34,11 @@ C.ids = {
   crackedKeystoneQuest = 92600,
   -- Raid
   raid = 2406,
+  midnightRaids = {
+    [0] = 2529,
+    [1] = 2531,
+    [2] = 2533,
+  },
   worldBoss = 87345,
   -- Expansion-zones
   specialAssignments = {
@@ -101,14 +106,14 @@ C.sections = {
   },
   [2] = {
     "showCurrentCofferKeysEnabled",
-    "showCofferKeysEnabled",
+    -- "showCofferKeysEnabled",
     "showDelversBountyEnabled",
     "showCrackedKeystoneEnabled",
   },
   [3] = {
     "showSoireeRunestoneEnabled",
     "showAbundanceEnabled",
-    "showMemoryOfHarandarEnabled",
+    -- "showMemoryOfHarandarEnabled",
     "showStormarionAssaultEnabled",
     "showSpecialAssignmentsEnabled",
   },
@@ -121,7 +126,7 @@ C.sections = {
   },
   [5] = {"showPVPCurrenciesEnabled"},
   [6] = {
-    "showWorldBossEnabled",
+    -- "showWorldBossEnabled",
     "showMythicRaidEnabled",
     "showHeroicRaidEnabled",
     "showNormalRaidEnabled",
@@ -132,6 +137,12 @@ C.configData = {
     label = "Show Gold",
     default = true,
     height = C.TraditionalRowValue,
+  },
+  manualCharacterOrderEnabled = {
+    label = "Use Manual Character Order",
+    default = false,
+    height = 0,
+    tooltip = "When enabled, character columns are ordered by your manual list instead of ilvl.",
   },
   showRaidVaultEnabled = {
     label = "Show Raid Vault",
@@ -170,13 +181,8 @@ C.configData = {
     tooltip = "Show the number of Vault Tokens in bags",
   },
   showCurrentCofferKeysEnabled = {
-    label = "Show Owned Coffer Keys",
+    label = "Show Coffer Key/Shards",
     default = true,
-    height = C.TraditionalRowValue,
-  },
-  showCofferKeysEnabled = {
-    label = "Show Weekly Coffer Keys earned",
-    default = false,
     height = C.TraditionalRowValue * 2,
   },
   showDelversBountyEnabled = {
@@ -184,12 +190,12 @@ C.configData = {
     default = true,
     height = C.TraditionalRowValue,
   },
-  -- showCrackedKeystoneEnabled = {
-  --   label = "Show Cracked Keystone one-time quest",
-  --   default = true,
-  --   height = C.TraditionalRowValue,
-  --   tooltip = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
-  -- },
+  showCrackedKeystoneEnabled = {
+    label = "Show Cracked Keystone one-time quest",
+    default = true,
+    height = C.TraditionalRowValue,
+    tooltip = "Cracked Keystone is a one-time quest per character per season that rewards 15 uncapped gilded crests",
+  },
   showSoireeRunestoneEnabled = {
     label = "Show Eversong Runestone completion",
     default = true,
@@ -200,11 +206,11 @@ C.configData = {
     default = true,
     height = C.TraditionalRowValue,
   },
-  showMemoryOfHarandarEnabled = {
-    label = "Show Memory of Harandar completion",
-    default = true,
-    height = C.TraditionalRowValue,
-  },
+  -- showMemoryOfHarandarEnabled = {
+  --   label = "Show Memory of Harandar completion",
+  --   default = true,
+  --   height = C.TraditionalRowValue,
+  -- },
   showStormarionAssaultEnabled = {
     label = "Show Stormarion Assault completion",
     default = true,
@@ -251,23 +257,23 @@ C.configData = {
     default = false,
     height = C.TraditionalRowValue * 3,
   },
-  showWorldBossEnabled = {
-    label = "Show World Boss",
-    default = true,
-    height = C.TraditionalRowValue,
-  },
+  -- showWorldBossEnabled = {
+  --   label = "Show World Boss",
+  --   default = true,
+  --   height = C.TraditionalRowValue,
+  -- },
   showMythicRaidEnabled = {
-    label = "Show Manaforge Omega Mythic",
+    label = "Show Midnight T1 Mythic",
     default = true,
     height = C.TraditionalRowValue,
   },
   showHeroicRaidEnabled = {
-    label = "Show Manaforge Omega Heroic",
+    label = "Show Midnight T1 Heroic",
     default = true,
     height = C.TraditionalRowValue,
   },
   showNormalRaidEnabled = {
-    label = "Show Manaforge Omega Normal",
+    label = "Show Midnight T1 Normal",
     default = true,
     height = C.TraditionalRowValue,
   },
@@ -309,7 +315,7 @@ C.labels = {
   currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",
   currentCofferKeyShards = "Weekly Shards |T133016:16:16:0:0|t",
   delversBounty = "Delver Bounty |T1064187:16:16:0:0|t",
-  -- crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
+  crackedKeystoneDone = "Cracked Keyst. |T4352494:16:16:0:0|t",
 
   soireeRunestone = "Eversong Runestone",
   abundance = "Abundance",
