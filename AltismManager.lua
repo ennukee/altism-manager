@@ -40,6 +40,25 @@ local function true_numel(t)
 	return c
 end
 
+local GEAR_SLOT_DEFINITIONS = {
+	{ id = INVSLOT_HEAD, label = "Head" },
+	{ id = INVSLOT_NECK, label = "Neck" },
+	{ id = INVSLOT_SHOULDER, label = "Shoulder" },
+	{ id = INVSLOT_BACK, label = "Back" },
+	{ id = INVSLOT_CHEST, label = "Chest" },
+	{ id = INVSLOT_WRIST, label = "Wrist" },
+	{ id = INVSLOT_HAND, label = "Hands" },
+	{ id = INVSLOT_WAIST, label = "Waist" },
+	{ id = INVSLOT_LEGS, label = "Legs" },
+	{ id = INVSLOT_FEET, label = "Feet" },
+	{ id = INVSLOT_FINGER1, label = "Ring 1" },
+	{ id = INVSLOT_FINGER2, label = "Ring 2" },
+	{ id = INVSLOT_TRINKET1, label = "Trinket 1" },
+	{ id = INVSLOT_TRINKET2, label = "Trinket 2" },
+	{ id = INVSLOT_MAINHAND, label = "Main Hand" },
+	{ id = 17, label = "Off Hand" },
+}
+
 do
 	local main_frame = CreateFrame("frame", nil, UIParent)
 	AltismManager.main_frame = main_frame
@@ -577,6 +596,259 @@ function AltismManager:GetMidnightRaidProgressData(alt_data, saveKey)
 	return result
 end
 
+function AltismManager:GetGearSlotDefinitions()
+	return GEAR_SLOT_DEFINITIONS
+end
+
+function AltismManager:GetGearTrackColorCode(trackName, isCrafted)
+	if isCrafted then
+		return "ffc0c0c0"
+	end
+
+	local normalized = (trackName or ""):lower()
+	if normalized:find("veteran") then
+		return "ffc0c0c0"
+	end
+	if normalized:find("champion") then
+		return "ff1eff00"
+	end
+	if normalized:find("hero") then
+		return "ff0070dd"
+	end
+	if normalized:find("myth") then
+		return "ffa335ee"
+	end
+	return "ffc0c0c0"
+end
+
+function AltismManager:FormatGearTrackText(item)
+	local ilvlValue = tonumber(item.ilvl or 0) or 0
+	local ilvlText = tostring(math.floor(ilvlValue + 0.5))
+
+	if item.track and item.track ~= "-" and item.track ~= "" then
+		local colorCode = self:GetGearTrackColorCode(item.track, false)
+		local ilvlColored = "|c" .. colorCode .. ilvlText .. "|r"
+
+		local trackLabel = item.track or ""
+		local progressText = ""
+		if item.trackProgress and item.trackProgress ~= "-" then
+			local current, maximum = item.trackProgress:match("^(%d+)%s*/%s*(%d+)$")
+			if current and maximum then
+				if tonumber(current) and tonumber(maximum) and tonumber(current) < tonumber(maximum) then
+					progressText = " |cffffffff" .. current .. "|r|c" .. colorCode .. "/" .. maximum .. "|r"
+				else
+					progressText = " " .. item.trackProgress
+				end
+			else
+				progressText = " " .. item.trackProgress
+			end
+		end
+
+		local trackSegment = "|c" .. colorCode .. trackLabel .. progressText .. "|r"
+		return ilvlColored .. " (" .. trackSegment .. ")"
+	end
+
+	if item.isCrafted then
+		local craftedColor = "ffc0c0c0"
+		return "|c" .. craftedColor .. ilvlText .. "|r (|c" .. craftedColor .. "Crafted|r)"
+	end
+
+	return "|cffc0c0c0" .. ilvlText .. "|r (|cffc0c0c0-|r)"
+end
+
+function AltismManager:IsDualWieldClass(classToken)
+	return classToken == "DEATHKNIGHT"
+		or classToken == "DEMONHUNTER"
+		or classToken == "MONK"
+		or classToken == "ROGUE"
+		or classToken == "SHAMAN"
+		or classToken == "WARRIOR"
+end
+
+function AltismManager:IsWeaponItemLink(itemLink)
+	if not itemLink then
+		return false
+	end
+	if not (C_Item and C_Item.GetItemInfoInstant) then
+		return false
+	end
+
+	local _, _, _, _, _, _, _, _, equipLoc = C_Item.GetItemInfoInstant(itemLink)
+	if not equipLoc then
+		return false
+	end
+
+	return equipLoc == "INVTYPE_WEAPON"
+		or equipLoc == "INVTYPE_WEAPONMAINHAND"
+		or equipLoc == "INVTYPE_WEAPONOFFHAND"
+		or equipLoc == "INVTYPE_2HWEAPON"
+		or equipLoc == "INVTYPE_RANGED"
+		or equipLoc == "INVTYPE_RANGEDRIGHT"
+		or equipLoc == "INVTYPE_THROWN"
+		or equipLoc == "INVTYPE_GUN"
+		or equipLoc == "INVTYPE_BOW"
+		or equipLoc == "INVTYPE_CROSSBOW"
+		or equipLoc == "INVTYPE_WAND"
+end
+
+function AltismManager:SlotRequiresEnchant(alt_data, item)
+	local slotId = item and item.slotId
+	if not slotId then
+		return false
+	end
+
+	if slotId == INVSLOT_HEAD
+		or slotId == INVSLOT_SHOULDER
+		or slotId == INVSLOT_CHEST
+		or slotId == INVSLOT_LEGS
+		or slotId == INVSLOT_FEET
+		or slotId == INVSLOT_FINGER1
+		or slotId == INVSLOT_FINGER2
+		or slotId == INVSLOT_MAINHAND then
+		return item.itemLink ~= nil
+	end
+
+	if slotId == INVSLOT_OFFHAND then
+		if not (item.itemLink and self:IsDualWieldClass(alt_data and alt_data.class)) then
+			return false
+		end
+		return self:IsWeaponItemLink(item.itemLink)
+	end
+
+	return false
+end
+
+function AltismManager:CollectGearData(unitToken)
+	local gearData = {}
+	local function looksLikeTrackName(name)
+		local normalized = strtrim((name or ""):lower())
+		if normalized == "" then return false end
+		if normalized:find("durability", 1, true) then return false end
+		if normalized:find("upgrade level", 1, true) then return false end
+		return normalized:find("veteran", 1, true)
+			or normalized:find("champion", 1, true)
+			or normalized:find("hero", 1, true)
+			or normalized:find("myth", 1, true)
+	end
+	for _, slotDef in ipairs(self:GetGearSlotDefinitions()) do
+		local slotId = slotDef.id
+		local slotLabel = slotDef.label
+		local itemLink = GetInventoryItemLink(unitToken, slotId)
+		if itemLink then
+			local itemName, _, itemRarity, itemLevel, _, _, _, _, _, icon = C_Item.GetItemInfo(itemLink)
+			local detailedIlvl = C_Item.GetDetailedItemLevelInfo(itemLink)
+
+			local track = "-"
+			local trackProgress = "-"
+			local enchant = "-"
+			local isCrafted = false
+
+			local tooltipData = C_TooltipInfo and C_TooltipInfo.GetInventoryItem and C_TooltipInfo.GetInventoryItem(unitToken, slotId)
+			if tooltipData and tooltipData.lines then
+				for _, line in ipairs(tooltipData.lines) do
+					local leftText = line.leftText
+					local rightText = line.rightText
+					local craftedLeft = leftText and leftText:lower():find("crafted", 1, true)
+					local craftedRight = rightText and rightText:lower():find("crafted", 1, true)
+					if (craftedLeft or craftedRight) and not isCrafted then
+							isCrafted = true
+					end
+
+					local text = leftText
+					if text and text ~= "" then
+						if enchant == "-" then
+							local enchantText = text:match("^Enchanted:%s*(.+)$")
+							if enchantText and enchantText ~= "" then
+								enchant = enchantText
+							end
+						end
+
+						-- Prefer Upgrade Level as source of truth, but strip the label.
+						local upTrackName, upCurrent, upMaximum = text:match("^[Uu]pgrade%s+[Ll]evel:?%s*(.+)%s+(%d+)%s*/%s*(%d+)$")
+						if upTrackName and upCurrent and upMaximum and looksLikeTrackName(upTrackName) then
+							track = strtrim(upTrackName)
+							trackProgress = upCurrent .. "/" .. upMaximum
+						end
+
+						-- Format: "Champion 6/6"
+						local inlineTrackName, current, maximum = text:match("^(.+)%s+(%d+)%s*/%s*(%d+)$")
+						if track == "-" and inlineTrackName and current and maximum and looksLikeTrackName(inlineTrackName) then
+							track = strtrim(inlineTrackName)
+							trackProgress = current .. "/" .. maximum
+						end
+
+						-- Format: left is track name, right is progress (e.g. Champion | 6/6)
+						if track == "-" and looksLikeTrackName(text) then
+							track = strtrim(text)
+						end
+
+						if track ~= "-" and trackProgress == "-" then
+							local leftCurrent, leftMaximum = text:match("(%d+)%s*/%s*(%d+)")
+							if leftCurrent and leftMaximum and not text:lower():find("durability", 1, true) then
+								trackProgress = leftCurrent .. "/" .. leftMaximum
+							end
+						end
+
+						-- Keep upgrade progress fallback if track was identified elsewhere.
+						if track ~= "-" and trackProgress == "-" and text:lower():find("upgrade", 1, true) then
+							local upCurrent, upMaximum = text:match("(%d+)%s*/%s*(%d+)")
+							if upCurrent and upMaximum then
+								trackProgress = upCurrent .. "/" .. upMaximum
+							end
+						end
+					end
+
+					if track ~= "-" and trackProgress == "-" and rightText and rightText ~= "" then
+						local rightCurrent, rightMaximum = rightText:match("(%d+)%s*/%s*(%d+)")
+						if rightCurrent and rightMaximum then
+							trackProgress = rightCurrent .. "/" .. rightMaximum
+						end
+					end
+				end
+			end
+
+			local itemString = itemLink:match("item:([%-%d:]+)")
+			if enchant == "-" and itemString then
+				local _, enchantId = strsplit(":", itemString)
+				local enchantIdNum = tonumber(enchantId or "0") or 0
+				if enchantIdNum > 0 then
+					enchant = "Enchant #" .. tostring(enchantIdNum)
+				end
+			end
+
+			gearData[slotId] = {
+				slotId = slotId,
+				slotLabel = slotLabel,
+				itemLink = itemLink,
+				name = itemName or "Unknown Item",
+				ilvl = detailedIlvl or itemLevel or 0,
+				rarity = itemRarity or 1,
+				track = track,
+				trackProgress = trackProgress,
+				isCrafted = isCrafted,
+				enchant = enchant,
+				icon = icon or "Interface\\Icons\\INV_Misc_QuestionMark",
+			}
+		else
+			gearData[slotId] = {
+				slotId = slotId,
+				slotLabel = slotLabel,
+				itemLink = nil,
+				name = "Empty",
+				ilvl = 0,
+				rarity = 1,
+				track = "-",
+				trackProgress = "-",
+				isCrafted = false,
+				enchant = "-",
+				icon = "Interface\\Icons\\INV_Misc_QuestionMark",
+			}
+		end
+	end
+
+	return gearData
+end
+
 function AltismManager:ValidateReset()
 	local db = AltismManagerDB
 	if not db then return end;
@@ -882,6 +1154,7 @@ function AltismManager:CollectData()
 	-- Define the savedata file
 	local char_table = {}
 	char_table.vaultTokens = vault_tokens
+	char_table.gear = self:CollectGearData('player')
 
 	char_table.raidsaves = {}
 
@@ -1189,6 +1462,7 @@ function AltismManager:UpdateStrings()
 
 	self.main_frame.alt_columns = self.main_frame.alt_columns or {};
 	self.main_frame.remove_buttons = self.main_frame.remove_buttons or {}
+	self.main_frame.gear_buttons = self.main_frame.gear_buttons or {}
 
 	local shownGuids = {}
 	local sortedGuids = self:GetSortedCharacterGuids()
@@ -1373,6 +1647,19 @@ function AltismManager:UpdateStrings()
 					extra:SetFrameLevel(current_row:GetFrameLevel() + 1)
 					extra:Show();
 				end
+
+				if column.gear_button ~= nil then
+					self.main_frame.gear_buttons = self.main_frame.gear_buttons or {}
+					local gearButton = self.main_frame.gear_buttons[alt_data.guid] or column.gear_button(alt_data)
+					if self.main_frame.gear_buttons[alt_data.guid] == nil then
+						self.main_frame.gear_buttons[alt_data.guid] = gearButton
+					end
+					gearButton:SetParent(current_row)
+					gearButton:SetPoint("TOPRIGHT", current_row, "TOPRIGHT", -34, 2)
+					gearButton:SetPoint("BOTTOMRIGHT", current_row, "TOPRIGHT", -34, -C.pixelSizing.removeButtonSize + 2)
+					gearButton:SetFrameLevel(current_row:GetFrameLevel() + 1)
+					gearButton:Show()
+				end
 			end
 			if column.enabled then
 				i = i + 1
@@ -1388,6 +1675,12 @@ function AltismManager:UpdateStrings()
 	end
 
 	for guid, button in pairs(self.main_frame.remove_buttons) do
+		if button and not shownGuids[guid] then
+			button:Hide()
+		end
+	end
+
+	for guid, button in pairs(self.main_frame.gear_buttons) do
 		if button and not shownGuids[guid] then
 			button:Hide()
 		end
@@ -1581,6 +1874,7 @@ function AltismManager:CreateContent()
 			justify = "TOP",
 			enabled = true,
 			-- font = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf",
+			gear_button = function(alt_data) return self:CreateGearButton(function() AltismManager:ShowGearDialog(alt_data) end) end,
 			remove_button = function(alt_data) return self:CreateRemoveButton(function() AltismManager:RemoveCharacterByGuid(alt_data.guid) end) end
 		},
 		gold = {
@@ -1986,12 +2280,176 @@ function AltismManager:ShowInterface()
 	self:UpdateStrings();
 end
 
+function AltismManager:EnsureGearDialog()
+	if self.gearDialog then
+		return self.gearDialog
+	end
+
+	local dialog = CreateFrame("Frame", "AltismManagerGearDialog", UIParent, "BasicFrameTemplateWithInset")
+	local dialogWidth = 980
+	local rowHeight = 32
+	local rowSpacing = 2
+	local totalRows = #self:GetGearSlotDefinitions()
+	local contentHeight = (totalRows * rowHeight) + ((totalRows - 1) * rowSpacing)
+	local dialogHeight = contentHeight + 70
+	dialog:SetSize(dialogWidth, dialogHeight)
+	dialog:SetPoint("CENTER")
+	dialog:SetFrameStrata("FULLSCREEN_DIALOG")
+	dialog:SetFrameLevel(50)
+	dialog:EnableKeyboard(true)
+	dialog:SetScript("OnKeyDown", function(self, key)
+		if key == "ESCAPE" then
+			self:SetPropagateKeyboardInput(false)
+			self:Hide()
+		else
+			self:SetPropagateKeyboardInput(true)
+		end
+	end)
+	dialog:SetScript("OnShow", function(self)
+		self:SetPropagateKeyboardInput(true)
+	end)
+	dialog:Hide()
+
+	dialog.title = dialog:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	dialog.title:SetPoint("TOP", dialog, "TOP", 0, -8)
+	dialog.title:SetText("Character Gear")
+
+	dialog.content = CreateFrame("Frame", nil, dialog)
+	dialog.content:SetPoint("TOPLEFT", dialog, "TOPLEFT", 12, -28)
+	dialog.content:SetPoint("TOPRIGHT", dialog, "TOPRIGHT", -12, -28)
+	dialog.content:SetSize(956, 1)
+	dialog.rows = {}
+
+	for idx, slotDef in ipairs(self:GetGearSlotDefinitions()) do
+		local row = CreateFrame("Button", nil, dialog.content)
+		row:SetSize(948, 32)
+		if idx == 1 then
+			row:SetPoint("TOPLEFT", dialog.content, "TOPLEFT", 0, 0)
+		else
+			row:SetPoint("TOPLEFT", dialog.rows[idx - 1], "BOTTOMLEFT", 0, -2)
+		end
+
+		row.bg = row:CreateTexture(nil, "BACKGROUND")
+		row.bg:SetAllPoints()
+		row.bg:SetColorTexture(0.05, 0.05, 0.08, idx % 2 == 0 and 0.3 or 0.15)
+
+		row.icon = row:CreateTexture(nil, "ARTWORK")
+		row.icon:SetSize(28, 28)
+		row.icon:SetPoint("LEFT", row, "LEFT", 4, 0)
+
+		row.slot = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+		row.slot:SetPoint("LEFT", row.icon, "RIGHT", 8, 0)
+		row.slot:SetWidth(92)
+		row.slot:SetJustifyH("LEFT")
+
+		row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		row.name:SetPoint("LEFT", row.slot, "RIGHT", 6, 0)
+		row.name:SetWidth(220)
+		row.name:SetJustifyH("LEFT")
+
+		row.trackLine = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.trackLine:SetPoint("LEFT", row.name, "RIGHT", 8, 0)
+		row.trackLine:SetWidth(220)
+		row.trackLine:SetJustifyH("LEFT")
+
+		row.enchant = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+		row.enchant:SetPoint("LEFT", row.trackLine, "RIGHT", 6, 0)
+		row.enchant:SetWidth(340)
+		row.enchant:SetJustifyH("LEFT")
+
+		row:SetScript("OnEnter", function(self)
+			if self.itemLink then
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+				GameTooltip:SetHyperlink(self.itemLink)
+				GameTooltip:Show()
+			end
+		end)
+		row:SetScript("OnLeave", function()
+			GameTooltip:Hide()
+		end)
+
+		dialog.rows[idx] = row
+	end
+
+	if #dialog.rows > 0 then
+		dialog.content:SetHeight(contentHeight)
+	end
+
+	self.gearDialog = dialog
+	return dialog
+end
+
+function AltismManager:ShowGearDialog(alt_data)
+	if not alt_data then return end
+	local dialog = self:EnsureGearDialog()
+	dialog.title:SetText((alt_data.name or "Unknown") .. " - " .. (alt_data.realm or "Unknown") .. " Gear")
+
+	local gear = alt_data.gear or {}
+	for idx, slotDef in ipairs(self:GetGearSlotDefinitions()) do
+		local row = dialog.rows[idx]
+		if row then
+			local item = gear[slotDef.id] or {
+				slotId = slotDef.id,
+				slotLabel = slotDef.label,
+				itemLink = nil,
+				name = "Empty",
+				ilvl = 0,
+				rarity = 1,
+				track = "-",
+				trackProgress = "-",
+				isCrafted = false,
+				enchant = "-",
+				icon = "Interface\\Icons\\INV_Misc_QuestionMark",
+			}
+
+			row.itemLink = item.itemLink
+			row.icon:SetTexture(item.icon)
+			row.slot:SetText(item.slotLabel or slotDef.label)
+			row.name:SetText(item.name or "Unknown Item")
+			row.trackLine:SetText(self:FormatGearTrackText(item))
+
+			local enchantText = item.enchant or "-"
+			local hasEnchant = enchantText ~= "" and enchantText ~= "-"
+			local requiresEnchant = self:SlotRequiresEnchant(alt_data, item)
+			if requiresEnchant and not hasEnchant then
+				row.enchant:SetText("|cffff4040Missing|r")
+			else
+				row.enchant:SetText(enchantText)
+			end
+
+			local qualityColor = ITEM_QUALITY_COLORS[item.rarity or 1] or ITEM_QUALITY_COLORS[1]
+			row.name:SetTextColor(qualityColor.r, qualityColor.g, qualityColor.b, 1)
+		end
+	end
+
+	dialog:Show()
+end
+
 function AltismManager:CreateRemoveButton(func)
 	local frame = CreateFrame("Button", nil, nil)
 	frame:ClearAllPoints()
 	frame:SetScript("OnClick", function() func() end);
 	self:MakeRemoveTexture(frame)
 	frame:SetWidth(C.pixelSizing.removeButtonSize)
+	return frame
+end
+
+function AltismManager:CreateGearButton(func)
+	local frame = CreateFrame("Button", nil, nil)
+	frame:ClearAllPoints()
+	frame:SetScript("OnClick", function() func() end)
+	frame:SetSize(C.pixelSizing.removeButtonSize, C.pixelSizing.removeButtonSize)
+	frame.icon = frame:CreateTexture(nil, "ARTWORK")
+	frame.icon:SetTexture("Interface\\Icons\\INV_Chest_Plate06")
+	frame.icon:SetAllPoints()
+	frame:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:AddLine("Show Character Gear")
+		GameTooltip:Show()
+	end)
+	frame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
 	return frame
 end
 
