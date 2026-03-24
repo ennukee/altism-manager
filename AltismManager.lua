@@ -1047,13 +1047,13 @@ local dungeons = {
 	--[375] = "MoTS",
 	--[376] = "NW",
 	-- [377] = "DOS",
-	[378] = "HoA", -- Halls of Atonement
+	-- [378] = "HoA", -- Halls of Atonement
 	-- [379] = "PF",
 	-- [380] = "SD",
 	-- [381] = "SoA",
 	-- [382] = "ToP",
-	[391] = "STRT", -- Tazavesh: Streets
-	[392] = "GMBT", -- Tazavesh: Gambit
+	-- [391] = "STRT", -- Tazavesh: Streets
+	-- [392] = "GMBT", -- Tazavesh: Gambit
 	-- Dragonflight
 	-- [399] = "RLP",
 	-- [400] = "NO",
@@ -1066,16 +1066,25 @@ local dungeons = {
 	-- [463] = "FALL",
 	-- [464] = "RISE",
 	-- The War Within
-	[499] = "PSF", -- Priory of the Sacred Flame
+	-- [499] = "PSF", -- Priory of the Sacred Flame
 	-- [500] = "ROOK", -- The Rookery
 	--[501] = "SV", -- The Stonevault
 	--[502] = "COT", -- City of Threads
-	[503] = "ARAK", -- Ara-Kara, City of Echoes
+	-- [503] = "ARAK", -- Ara-Kara, City of Echoes
 	-- [504] = "DFC", -- Darkflame Cleft
-	[505] = "DAWN", -- The Dawnbreaker
+	-- [505] = "DAWN", -- The Dawnbreaker
 	-- [506] = "BREW", -- Cinderbrew Meadery
-	[525] = "FLOOD", -- Operation: Floodgate
-	[542] = "ECO" -- Eco-Dome Al'dani
+	-- [525] = "FLOOD", -- Operation: Floodgate
+	-- [542] = "ECO" -- Eco-Dome Al'dani
+	-- Midnight S1
+	[239] = "SEAT", -- Seat of the Triumverate
+	[161] = "SKY", -- Skyreach
+	[560] = "CAVERN", -- Maisara Caverns
+	[557] = "SPIRE", -- Windrunner spire
+	[556] = "PIT", -- Pit of Saron
+	[402] = "AA", -- Algeth'ar Academy
+	[558] = "MT", -- Magister's Terrace
+	[559] = "XENAS", -- Nexus-Point Xenas
 };
 
 function AltismManager:CollectData()
@@ -1108,8 +1117,8 @@ function AltismManager:CollectData()
 	end
 	local maps = C_ChallengeMode.GetMapTable();
 	for i = 1, #maps do
-        C_ChallengeMode.RequestLeaders(maps[i]);
-    end
+		C_ChallengeMode.RequestLeaders(maps[i]);
+	end
 
 	local run_history = C_MythicPlus.GetRunHistory(false, true);
 
