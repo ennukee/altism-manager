@@ -126,6 +126,9 @@ function AltismManager:InitDB()
 	local t = {};
 	t.alts = 0;
 	t.data = {};
+	t.configDefaults = {};
+	t.characterConfig = {};
+	t.selectedConfigTarget = "DEFAULT";
 	t.manualCharacterOrderEnabled = false;
 	t.manualCharacterOrder = {};
 	t.showGoldEnabled = true;
@@ -142,7 +145,7 @@ function AltismManager:InitDB()
 end
 
 function AltismManager:CalculateXSizeNoGuidCheck()
-	local alts = AltismManagerDB.alts;
+	local alts = #self:GetSortedCharacterGuids(false)
 	return max((alts + 1) * C.pixelSizing.perAltX, C.pixelSizing.minSizeX)
 end
 
@@ -156,7 +159,7 @@ function AltismManager:CalculateYSize()
 		for _, section in ipairs(C.sections or {}) do
 			local anyActive = false
 			for _, flagName in ipairs(section) do
-				if AltismManagerDB[flagName] then
+				if self:IsConfigFlagEnabledAnywhere(flagName) then
 					anyActive = true
 					break
 				end
@@ -166,7 +169,7 @@ function AltismManager:CalculateYSize()
 			end
 		end
 		for flagName, config in pairs(C.configData or {}) do
-			if AltismManagerDB[flagName] == false then
+			if not self:IsConfigFlagEnabledAnywhere(flagName) then
 					modifiedSize = modifiedSize - (config.height or 0)
 			end
 		end
@@ -217,6 +220,193 @@ function AltismManager:AddMissingPostReleaseFields()
 	for key, config in pairs(C.configData) do
 		AltismManager:AddMissingField(key, config.default)
 	end
+
+	AltismManagerDB.configDefaults = AltismManagerDB.configDefaults or {}
+	AltismManagerDB.characterConfig = AltismManagerDB.characterConfig or {}
+	if AltismManagerDB.selectedConfigTarget == nil then
+		AltismManagerDB.selectedConfigTarget = "DEFAULT"
+	end
+
+	for key, config in pairs(C.configData) do
+		if AltismManagerDB.configDefaults[key] == nil then
+			if AltismManagerDB[key] ~= nil then
+				AltismManagerDB.configDefaults[key] = AltismManagerDB[key]
+			else
+				AltismManagerDB.configDefaults[key] = config.default
+			end
+		end
+	end
+end
+
+function AltismManager:GetCharacterConfigEntry(guid, createIfMissing)
+	if not AltismManagerDB or not guid then
+		return nil
+	end
+
+	AltismManagerDB.characterConfig = AltismManagerDB.characterConfig or {}
+	local entry = AltismManagerDB.characterConfig[guid]
+	if not entry and createIfMissing then
+		entry = {
+			overrides = {},
+			hidden = false,
+		}
+		AltismManagerDB.characterConfig[guid] = entry
+	end
+
+	if entry then
+		entry.overrides = entry.overrides or {}
+		if entry.hidden == nil then
+			entry.hidden = false
+		end
+	end
+
+	return entry
+end
+
+function AltismManager:IsCharacterHidden(guid)
+	local entry = self:GetCharacterConfigEntry(guid, false)
+	return entry and entry.hidden == true or false
+end
+
+function AltismManager:SetCharacterHidden(guid, hidden)
+	if not guid then return end
+	local entry = self:GetCharacterConfigEntry(guid, true)
+	entry.hidden = hidden and true or false
+end
+
+function AltismManager:GetDefaultConfigValue(flagName)
+	if not AltismManagerDB then return false end
+
+	AltismManagerDB.configDefaults = AltismManagerDB.configDefaults or {}
+	if AltismManagerDB.configDefaults[flagName] == nil then
+		if AltismManagerDB[flagName] ~= nil then
+			AltismManagerDB.configDefaults[flagName] = AltismManagerDB[flagName]
+		elseif C.configData[flagName] then
+			AltismManagerDB.configDefaults[flagName] = C.configData[flagName].default
+		else
+			AltismManagerDB.configDefaults[flagName] = false
+		end
+	end
+
+	return AltismManagerDB.configDefaults[flagName]
+end
+
+function AltismManager:SetDefaultConfigValue(flagName, value)
+	if not AltismManagerDB then return end
+
+	AltismManagerDB.configDefaults = AltismManagerDB.configDefaults or {}
+	AltismManagerDB.configDefaults[flagName] = value and true or false
+	AltismManagerDB[flagName] = AltismManagerDB.configDefaults[flagName]
+end
+
+function AltismManager:GetConfigValue(flagName, guid)
+	local defaultValue = self:GetDefaultConfigValue(flagName)
+	if not guid then
+		return defaultValue
+	end
+
+	local entry = self:GetCharacterConfigEntry(guid, false)
+	if not entry then
+		return defaultValue
+	end
+
+	if entry.overrides[flagName] == nil then
+		return defaultValue
+	end
+
+	return entry.overrides[flagName]
+end
+
+function AltismManager:SetCharacterConfigValue(guid, flagName, value)
+	if not guid then return end
+	local entry = self:GetCharacterConfigEntry(guid, true)
+	if not entry then return end
+	entry.overrides = entry.overrides or {}
+	entry.overrides[flagName] = value and true or false
+end
+
+function AltismManager:ApplyConfigValueToAllCharacters(flagName, value)
+	if not AltismManagerDB or not AltismManagerDB.data then return end
+	for guid in pairs(AltismManagerDB.data) do
+		local entry = self:GetCharacterConfigEntry(guid, true)
+		if entry then
+			entry.overrides = entry.overrides or {}
+			entry.overrides[flagName] = value and true or false
+		end
+	end
+end
+
+function AltismManager:IsConfigFlagEnabledAnywhere(flagName)
+	if not AltismManagerDB or not AltismManagerDB.data then
+		return false
+	end
+
+	for guid in pairs(AltismManagerDB.data) do
+		if not self:IsCharacterHidden(guid) and self:GetConfigValue(flagName, guid) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function AltismManager:IsSectionVisibleAnywhere(sectionId)
+	local section = C.sections and C.sections[sectionId]
+	if not section then
+		return false
+	end
+
+	for _, flagName in ipairs(section) do
+		if self:IsConfigFlagEnabledAnywhere(flagName) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function AltismManager:IsColumnVisibleAnywhere(column)
+	if not column then
+		return false
+	end
+
+	if column.enabled == false then
+		return false
+	end
+
+	if column.sectionId ~= nil then
+		return self:IsSectionVisibleAnywhere(column.sectionId)
+	end
+
+	if column.configKey then
+		return self:IsConfigFlagEnabledAnywhere(column.configKey)
+	end
+
+	return true
+end
+
+function AltismManager:SyncCharacterConfigStorage()
+	local db = AltismManagerDB
+	if not db then return end
+
+	db.characterConfig = db.characterConfig or {}
+	db.data = db.data or {}
+
+	for guid, _ in pairs(db.characterConfig) do
+		if not db.data[guid] then
+			db.characterConfig[guid] = nil
+		end
+	end
+
+	for guid in pairs(db.data) do
+		local entry = self:GetCharacterConfigEntry(guid, true)
+		if entry then
+			entry.overrides = entry.overrides or {}
+			if entry.hidden == nil then
+				entry.hidden = false
+			end
+		end
+	end
 end
 
 function AltismManager:OnLoad()
@@ -227,6 +417,7 @@ function AltismManager:OnLoad()
 
 	self:PurgeDbShadowlands();
 	self:AddMissingPostReleaseFields();
+	self:SyncCharacterConfigStorage();
 	self:SyncManualCharacterOrder()
 
 	if AltismManagerDB.alts ~= true_numel(AltismManagerDB.data) then
@@ -527,7 +718,7 @@ function AltismManager:SyncManualCharacterOrder()
 	db.manualCharacterOrder = synchronized
 end
 
-function AltismManager:GetSortedCharacterGuids()
+function AltismManager:GetSortedCharacterGuids(includeHidden)
 	local db = AltismManagerDB
 	local sorted = {}
 	if not db or not db.data then return sorted end
@@ -535,7 +726,7 @@ function AltismManager:GetSortedCharacterGuids()
 	if db.manualCharacterOrderEnabled then
 		self:SyncManualCharacterOrder()
 		for _, guid in ipairs(db.manualCharacterOrder or {}) do
-			if db.data[guid] then
+			if db.data[guid] and (includeHidden or not self:IsCharacterHidden(guid)) then
 				table.insert(sorted, guid)
 			end
 		end
@@ -543,7 +734,9 @@ function AltismManager:GetSortedCharacterGuids()
 	end
 
 	for guid in pairs(db.data) do
-		table.insert(sorted, guid)
+		if includeHidden or not self:IsCharacterHidden(guid) then
+			table.insert(sorted, guid)
+		end
 	end
 
 	table.sort(sorted, function(a, b)
@@ -927,6 +1120,12 @@ function AltismManager:RemoveCharacterByGuid(index, skip_confirmation)
 		if db.data[index] == nil then return end
 		db.alts = db.alts - 1;
 		db.data[index] = nil
+		if db.characterConfig then
+			db.characterConfig[index] = nil
+		end
+		if db.selectedConfigTarget == index then
+			db.selectedConfigTarget = "DEFAULT"
+		end
 		if db.manualCharacterOrder then
 			for i = #db.manualCharacterOrder, 1, -1 do
 				if db.manualCharacterOrder[i] == index then
@@ -1007,6 +1206,7 @@ function AltismManager:StoreData(data)
 		db.data[guid] = data
 	end
 
+	self:SyncCharacterConfigStorage()
 	self:SyncManualCharacterOrder()
 end
 
@@ -1475,7 +1675,7 @@ function AltismManager:UpdateStrings()
 	self.main_frame.gear_buttons = self.main_frame.gear_buttons or {}
 
 	local shownGuids = {}
-	local sortedGuids = self:GetSortedCharacterGuids()
+	local sortedGuids = self:GetSortedCharacterGuids(false)
 	local alt = 0
 	for _, alt_guid in ipairs(sortedGuids) do
 		local alt_data = db.data[alt_guid]
@@ -1497,8 +1697,10 @@ function AltismManager:UpdateStrings()
 		-- create / fill fontstrings
 		local i = 1;
 		for column_iden, column in spairs(self.columns_table, function(t, a, b) return t[a].order < t[b].order end) do
+			local rowEnabledAnywhere = self:IsColumnVisibleAnywhere(column)
+			local enabledForCharacter = rowEnabledAnywhere and (not column.configKey or self:GetConfigValue(column.configKey, alt_guid))
 			-- only display data with values
-			if column.enabled and column.type == "raidprogress" then
+			if rowEnabledAnywhere and enabledForCharacter and column.type == "raidprogress" then
 				local raidProgress = column.data(alt_data) or {}
 				local totalBosses = 0
 				local totalSeparators = 0
@@ -1613,18 +1815,22 @@ function AltismManager:UpdateStrings()
 					end
 				end
 			end
-			if type(column.data) == "function" and column.enabled and column.type ~= "raidprogress" then
+			if type(column.data) == "function" and rowEnabledAnywhere and column.type ~= "raidprogress" then
 				local fontPath = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf"
 				local current_row = label_columns[i] or self:CreateFontFrame(anchor_frame, C.pixelSizing.perAltX, column.font_height or font_height, anchor_frame, -(i - 1) * font_height, column.data(alt_data), "CENTER", fontPath);
 				-- insert it into storage if just created
 				if not self.main_frame.alt_columns[alt].label_columns[i] then
 					self.main_frame.alt_columns[alt].label_columns[i] = current_row;
 				end
-				if column.color then
+				if enabledForCharacter and column.color then
 					local color = column.color(alt_data)
 					current_row:GetFontString():SetTextColor(color.r, color.g, color.b, 1);
 				end
-				current_row:SetText(column.data(alt_data))
+				if enabledForCharacter then
+					current_row:SetText(column.data(alt_data))
+				else
+					current_row:SetText(" ")
+				end
 				if column.font then
 					current_row:GetFontString():SetFont(column.font, C.pixelSizing.ilvlTextSize)
 				else
@@ -1634,7 +1840,7 @@ function AltismManager:UpdateStrings()
 					current_row:GetFontString():SetJustifyV(column.justify);
 				end
 
-				if column.tooltip then
+				if enabledForCharacter and column.tooltip then
 					current_row:SetScript("OnEnter", function(self)
 						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 						column.tooltip(alt_data)
@@ -1643,9 +1849,12 @@ function AltismManager:UpdateStrings()
 					current_row:SetScript("OnLeave", function(self)
 						GameTooltip:Hide()
 					end)
+				else
+					current_row:SetScript("OnEnter", nil)
+					current_row:SetScript("OnLeave", nil)
 				end
 
-				if column.remove_button ~= nil then
+				if enabledForCharacter and column.remove_button ~= nil then
 					self.main_frame.remove_buttons = self.main_frame.remove_buttons or {}
 					local extra = self.main_frame.remove_buttons[alt_data.guid] or column.remove_button(alt_data)
 					if self.main_frame.remove_buttons[alt_data.guid] == nil then
@@ -1658,7 +1867,7 @@ function AltismManager:UpdateStrings()
 					extra:Show();
 				end
 
-				if column.gear_button ~= nil then
+				if enabledForCharacter and column.gear_button ~= nil then
 					self.main_frame.gear_buttons = self.main_frame.gear_buttons or {}
 					local gearButton = self.main_frame.gear_buttons[alt_data.guid] or column.gear_button(alt_data)
 					if self.main_frame.gear_buttons[alt_data.guid] == nil then
@@ -1671,7 +1880,7 @@ function AltismManager:UpdateStrings()
 					gearButton:Show()
 				end
 			end
-			if column.enabled then
+			if rowEnabledAnywhere then
 				i = i + 1
 			end
 		end
@@ -1857,17 +2066,7 @@ function AltismManager:CreateContent()
 	--self.main_frame.closeButton:SetSize(32, h);
 
 	local function checkSectionFlags(section_id) 
-		if not AltismManagerDB or not C.sections or not C.sections[section_id] then
-			return false
-		end
-
-		for _, flagName in ipairs(C.sections[section_id]) do
-			if AltismManagerDB[flagName] then
-				return true
-			end
-		end
-
-		return false
+		return self:IsSectionVisibleAnywhere(section_id)
 	end
 
 	local column_table = {
@@ -1890,20 +2089,23 @@ function AltismManager:CreateContent()
 		gold = {
 			order = 1003,
 			justify = "TOP",
-			enabled = AltismManagerDB.showGoldEnabled,
+			enabled = true,
+			configKey = "showGoldEnabled",
 			font = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf",
 			data = function(alt_data) return tostring(alt_data.gold or "0") end,
 		},
 		raidvault = {
 			order = 2010,
 			label = C.labels.raidVault,
-			enabled = AltismManagerDB.showRaidVaultEnabled,
+			enabled = true,
+			configKey = "showRaidVaultEnabled",
 			data = function(alt_data) return self:RaidVaultSummaryString(alt_data) end,
 		},
 		mplusvault = {
 			order = 2020,
 			label = C.labels.mythicPlusVault,
-			enabled = AltismManagerDB.showMythicPlusVaultEnabled,
+			enabled = true,
+			configKey = "showMythicPlusVaultEnabled",
 			tooltip = function(alt_data)
 				local sorted_history = AltismManager:ProduceRelevantMythics(alt_data.run_history)
 				GameTooltip:AddLine("Mythic+ Vault Progress")
@@ -1920,32 +2122,37 @@ function AltismManager:CreateContent()
 		delvevault = {
 			order = 2030,
 			label = C.labels.delveVault,
-			enabled = AltismManagerDB.showDelveVaultEnabled,
+			enabled = true,
+			configKey = "showDelveVaultEnabled",
 			data = function(alt_data) return self:DelveVaultSummaryString(alt_data) end,
 		},
 		keystone = {
 			order = 2040,
 			label = C.labels.mythicKeystone,
-			enabled = AltismManagerDB.showMythicPlusDataEnabled,
+			enabled = true,
+			configKey = "showMythicPlusDataEnabled",
 			data = function(alt_data) return (dungeons[alt_data.dungeon] or alt_data.dungeon) .. " +" .. tostring(alt_data.level); end,
 		},
 		mplus_score = {
 			order = 2050,
 			label = C.labels.mythicPlusRating,
-			enabled = AltismManagerDB.showMythicPlusDataEnabled,
+			enabled = true,
+			configKey = "showMythicPlusDataEnabled",
 			data = function(alt_data) return tostring(alt_data.mplus_score or "0") end,
 		},
 		-- ! Offset
 		FAKE_FOR_OFFSET = {
 			order = 3000,
 			label = "",
-			enabled = checkSectionFlags(C.sectionNames["Misc"]),
+			enabled = true,
+			sectionId = C.sectionNames["Misc"],
 			data = function(alt_data) return " " end,
 		},
 		sparks = {
 			order = 3020,
 			label = C.labels.sparks,
-			enabled = AltismManagerDB.showSparksEnabled,
+			enabled = true,
+			configKey = "showSparksEnabled",
 			data = function(alt_data)
 				if (alt_data.currentSparks == AltismManagerDB.currentMaxSparks) then
 					return "|cFF39ec3c" .. tostring(alt_data.currentSparks or "?") .. " / " .. (AltismManagerDB.currentMaxSparks or "?") .. "|r"
@@ -1957,7 +2164,8 @@ function AltismManager:CreateContent()
 		catalyst = {
 			order = 3030,
 			label = C.labels.catalyst,
-			enabled = AltismManagerDB.showCatalystEnabled,
+			enabled = true,
+			configKey = "showCatalystEnabled",
 			data = function(alt_data)
 				if (alt_data.currentCatalyst == 0) then
 					return "|cFFec393c" .. tostring(alt_data.currentCatalyst or "?") .. "|r"
@@ -1969,7 +2177,8 @@ function AltismManager:CreateContent()
 		vaultTokens = {
 			order = 3040,
 			label = C.labels.vaultTokens,
-			enabled = AltismManagerDB.showVaultTokensEnabled,
+			enabled = true,
+			configKey = "showVaultTokensEnabled",
 			data = function(alt_data)
 				return tostring(alt_data.vaultTokens or "?")
 			end,
@@ -1978,13 +2187,15 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_delve = {
 			order = 4000,
 			label = "",
-			enabled = checkSectionFlags(C.sectionNames["Delve"]),
+			enabled = true,
+			sectionId = C.sectionNames["Delve"],
 			data = function(alt_data) return " " end,
 		},
 		currentCofferKeys = {
 			order = 4030,
 			label = C.labels.currentCofferKeys,
-			enabled = AltismManagerDB.showCurrentCofferKeysEnabled,
+			enabled = true,
+			configKey = "showCurrentCofferKeysEnabled",
 			data = function(alt_data)
 				return tostring(alt_data.currentCofferKeys or "?")
 			end,
@@ -1992,7 +2203,8 @@ function AltismManager:CreateContent()
 		weeklyCofferShards = {
 			order = 4035,
 			label = C.labels.currentCofferKeyShards,
-			enabled = AltismManagerDB.showCurrentCofferKeysEnabled,
+			enabled = true,
+			configKey = "showCurrentCofferKeysEnabled",
 			data = function(alt_data)
 				if (alt_data.currentCofferKeyShards == nil or alt_data.currentCofferKeyShardsCap == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2003,7 +2215,8 @@ function AltismManager:CreateContent()
 		delversBounty = {
 			order = 4040,
 			label = C.labels.delversBounty,
-			enabled = AltismManagerDB.showDelversBountyEnabled,
+			enabled = true,
+			configKey = "showDelversBountyEnabled",
 			data = function(alt_data)
 				if (alt_data.delversBountyClaimed == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2014,7 +2227,8 @@ function AltismManager:CreateContent()
 		crackedKeystone = {
 			order = 4050,
 			label = C.labels.crackedKeystoneDone,
-			enabled = AltismManagerDB.showCrackedKeystoneEnabled,
+			enabled = true,
+			configKey = "showCrackedKeystoneEnabled",
 			data = function(alt_data)
 				if (alt_data.cracked_keystone_done == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2026,13 +2240,15 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_WORLD_CONTENT = {
 			order = 4500,
 			label = "",
-			enabled = checkSectionFlags(C.sectionNames["World Content"]),
+			enabled = true,
+			sectionId = C.sectionNames["World Content"],
 			data = function(alt_data) return " " end,
 		},
 		soiree_runestone = {
 			order = 4501,
 			label = C.labels.soireeRunestone,
-			enabled = AltismManagerDB.showSoireeRunestoneEnabled,
+			enabled = true,
+			configKey = "showSoireeRunestoneEnabled",
 			data = function(alt_data)
 				if (alt_data.weeklies == nil or alt_data.weeklies.soireeRunestone == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2043,7 +2259,8 @@ function AltismManager:CreateContent()
 		abundance = {
 			order = 4502,
 			label = C.labels.abundance,
-			enabled = AltismManagerDB.showAbundanceEnabled,
+			enabled = true,
+			configKey = "showAbundanceEnabled",
 			data = function(alt_data)
 				if (alt_data.weeklies == nil or alt_data.weeklies.abundance == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2065,7 +2282,8 @@ function AltismManager:CreateContent()
 		stormarion_assault = {
 			order = 4504,
 			label = C.labels.stormarionAssault,
-			enabled = AltismManagerDB.showStormarionAssaultEnabled,
+			enabled = true,
+			configKey = "showStormarionAssaultEnabled",
 			data = function(alt_data)
 				if (alt_data.weeklies == nil or alt_data.weeklies.stormarionAssault == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2076,7 +2294,8 @@ function AltismManager:CreateContent()
 		nightmarish_task = {
 			order = 4505,
 			label = C.labels.nightmarishTask,
-			enabled = AltismManagerDB.showNightmarishTaskEnabled,
+			enabled = true,
+			configKey = "showNightmarishTaskEnabled",
 			data = function(alt_data)
 				if (alt_data.weeklies == nil or alt_data.weeklies.nightmarishTask == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2087,7 +2306,8 @@ function AltismManager:CreateContent()
 		special_assignments = {
 			order = 4506,
 			label = C.labels.specialAssignments,
-			enabled = AltismManagerDB.showSpecialAssignmentsEnabled,
+			enabled = true,
+			configKey = "showSpecialAssignmentsEnabled",
 			data = function(alt_data)
 				if (alt_data.weeklies == nil or alt_data.weeklies.specialAssignments == nil) then
 					return "|cFFbbbbbbUnknown|r"
@@ -2103,16 +2323,18 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_3 = {
 			order = 5000,
 			label = "",
-			enabled = checkSectionFlags(C.sectionNames["Crests"]),
+			enabled = true,
+			sectionId = C.sectionNames["Crests"],
 			data = function(alt_data) return " " end,
 		},
 		whelplings_crest = {
 			order = 5010,
 			label = C.labels.whelplingCrest,
-			enabled = AltismManagerDB.showTier1Crest,
+			enabled = true,
+			configKey = "showTier1Crest",
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
 					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
 					else 
@@ -2125,10 +2347,11 @@ function AltismManager:CreateContent()
 		drakes_crest = {
 			order = 5020,
 			label = C.labels.drakeCrest,
-			enabled = AltismManagerDB.showTier2Crest,
+			enabled = true,
+			configKey = "showTier2Crest",
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
 					if (alt_data.drakes_max == alt_data.drakes_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
 					else 
@@ -2141,10 +2364,11 @@ function AltismManager:CreateContent()
 		wyrms_crest = {
 			order = 5030,
 			label = C.labels.wyrmCrest,
-			enabled = AltismManagerDB.showTier3Crest,
+			enabled = true,
+			configKey = "showTier3Crest",
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
 					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
 					else 
@@ -2157,10 +2381,11 @@ function AltismManager:CreateContent()
 		aspects_crest = {
 			order = 5040,
 			label = C.labels.aspectCrest,
-			enabled = AltismManagerDB.showTier4Crest,
+			enabled = true,
+			configKey = "showTier4Crest",
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
 					if (alt_data.aspects_max == alt_data.aspects_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
 					else 
@@ -2173,10 +2398,11 @@ function AltismManager:CreateContent()
 		myth_crest = {
 			order = 5050,
 			label = C.labels.mythCrest,
-			enabled = AltismManagerDB.showTier5Crest,
+			enabled = true,
+			configKey = "showTier5Crest",
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
-				if (AltismManagerDB.showRemainingCrestsEnabled) then
+				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
 					if (alt_data.tier5_max == alt_data.tier5_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.tier5_crest or "?") .. "|r"
 					else 
@@ -2190,32 +2416,37 @@ function AltismManager:CreateContent()
 		FAKE_FOR_OFFSET_2 = {
 			order = 6000,
 			label = "",
-			enabled = checkSectionFlags(C.sectionNames["PVP"]),
+			enabled = true,
+			sectionId = C.sectionNames["PVP"],
 			data = function(alt_data) return " " end,
 		},
 		honor_points = {
 			order = 6010,
 			label = C.labels.honor,
-			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
+			enabled = true,
+			configKey = "showPVPCurrenciesEnabled",
 			data = function(alt_data) return tostring(alt_data.honor_points or "?") end,
 		},
 		conquest_pts = {
 			order = 6020,
 			label = C.labels.conquest,
-			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
+			enabled = true,
+			configKey = "showPVPCurrenciesEnabled",
 			data = function(alt_data) return (alt_data.conquest_total and tostring(alt_data.conquest_total) or "0")  end,
 		},
 		conquest_cap = {
 			order = 6030,
 			label = C.labels.conquestEarned,
-			enabled = AltismManagerDB.showPVPCurrenciesEnabled,
+			enabled = true,
+			configKey = "showPVPCurrenciesEnabled",
 			data = function(alt_data) return (alt_data.conquest_earned and (tostring(alt_data.conquest_earned) .. " / " .. C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID).maxQuantity) or "?")  end, --   .. "/" .. "500"
 		},
 		-- ! Offset
 		BLANK_LINE = {
 			order = 7000,
 			label = " ",
-			enabled = checkSectionFlags(C.sectionNames["Raids"]),
+			enabled = true,
+			sectionId = C.sectionNames["Raids"],
 			data = function(alt_data) return " " end,
 		},
 		-- worldboss = {
@@ -2230,7 +2461,8 @@ function AltismManager:CreateContent()
 			order = 7020,
 			label = C.labels.mythic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showMythicRaidEnabled,
+			enabled = true,
+			configKey = "showMythicRaidEnabled",
 			data = function(alt_data)
 				return self:GetMidnightRaidProgressData(alt_data, "mythic_savedata")
 			end
@@ -2239,7 +2471,8 @@ function AltismManager:CreateContent()
 			order = 7030,
 			label = C.labels.heroic,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showHeroicRaidEnabled,
+			enabled = true,
+			configKey = "showHeroicRaidEnabled",
 			data = function(alt_data)
 				return self:GetMidnightRaidProgressData(alt_data, "heroic_savedata")
 			end
@@ -2248,7 +2481,8 @@ function AltismManager:CreateContent()
 			order = 7040,
 			label = C.labels.normal,
 			type = "raidprogress",
-			enabled = AltismManagerDB.showNormalRaidEnabled,
+			enabled = true,
+			configKey = "showNormalRaidEnabled",
 			data = function(alt_data)
 				return self:GetMidnightRaidProgressData(alt_data, "normal_savedata")
 			end
@@ -2265,12 +2499,13 @@ function AltismManager:CreateContent()
 
 	local i = 1;
 	for row_iden, row in spairs(self.columns_table, function(t, a, b) return t[a].order < t[b].order end) do
-		if row.label and row.enabled then
+		local rowEnabledAnywhere = self:IsColumnVisibleAnywhere(row)
+		if row.label and rowEnabledAnywhere then
 			local fontPath = "Interface\\AddOns\\AltismManager\\fonts\\expressway.otf"
 			local label_row = self:CreateFontFrame(self.main_frame, C.pixelSizing.perAltX, font_height, label_column, -(i-1)*font_height, row.label~="" and row.label or " ", "RIGHT", fontPath);
 			self.main_frame.lowest_point = -(i-1)*font_height;
 		end
-		if row.enabled then
+		if rowEnabledAnywhere then
 			i = i + 1
 		end
 	end
@@ -2297,7 +2532,9 @@ end
 
 function AltismManager:ShowInterface()
 	self.main_frame:Show();
+	self.main_frame:SetSize(self:CalculateXSize(), self:CalculateYSize());
 	self:StoreData(self:CollectData())
+	self.main_frame:SetSize(self:CalculateXSize(), self:CalculateYSize());
 	self:UpdateStrings();
 end
 
