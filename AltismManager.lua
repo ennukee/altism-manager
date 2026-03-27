@@ -1404,6 +1404,7 @@ function AltismManager:CollectData()
 
 	char_table.weeklies = {
 		stormarionAssault = C_QuestLog.IsQuestFlaggedCompleted(C.ids.stormarionAssault),
+		nightmarishTask = C_QuestLog.IsQuestFlaggedCompleted(C.ids.nightmarishTask),
 		soireeRunestone = soireeCompleted,
 		abundance = C_QuestLog.IsQuestFlaggedCompleted(C.ids.abundance),
 		memoryOfHarandar = memoryCompleted,
@@ -2072,8 +2073,19 @@ function AltismManager:CreateContent()
 				return tostring(alt_data.weeklies.stormarionAssault and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
 			end,
 		},
-		special_assignments = {
+		nightmarish_task = {
 			order = 4505,
+			label = C.labels.nightmarishTask,
+			enabled = AltismManagerDB.showNightmarishTaskEnabled,
+			data = function(alt_data)
+				if (alt_data.weeklies == nil or alt_data.weeklies.nightmarishTask == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				return tostring(alt_data.weeklies.nightmarishTask and "|cFF39ec3cDone|r" or "|cFFec393cAvailable|r")
+			end,
+		},
+		special_assignments = {
+			order = 4506,
 			label = C.labels.specialAssignments,
 			enabled = AltismManagerDB.showSpecialAssignmentsEnabled,
 			data = function(alt_data)
