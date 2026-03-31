@@ -29,7 +29,6 @@ C.ids = {
   memoryOfHarandar4 = 0,--88996,
   memoryOfHarandar5 = 0,--88997,
   stormarionAssault = 90962,
-  nightmarishTask = 94446,
   -- currentCompleteCofferKeys = 3028, // TODO
   delversBounty = 86371,
   crackedKeystoneQuest = 92600,
@@ -116,7 +115,6 @@ C.sections = {
     "showAbundanceEnabled",
     -- "showMemoryOfHarandarEnabled",
     "showStormarionAssaultEnabled",
-    "showNightmarishTaskEnabled",
     "showSpecialAssignmentsEnabled",
   },
   [4] = {
@@ -215,11 +213,6 @@ C.configData = {
   -- },
   showStormarionAssaultEnabled = {
     label = "Show Stormarion Assault completion",
-    default = true,
-    height = C.TraditionalRowValue,
-  },
-  showNightmarishTaskEnabled = {
-    label = "Show Nightmarish Task completion",
     default = true,
     height = C.TraditionalRowValue,
   },
@@ -328,7 +321,6 @@ C.labels = {
   abundance = "Abundance",
   memoryOfHarandar = "Harandar Memory",
   stormarionAssault = "Stormarion Assault",
-  nightmarishTask = "Nightmarish Task",
   specialAssignments = "Special Asgmt",
 
   upgradeCrests = "Upgrade Crests",
