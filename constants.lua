@@ -14,6 +14,7 @@ C.ids = {
   spark = 3212,
   catalyst = 3378,
   vault_tokens = 248242,
+  reroll_tokens = 3418,
   -- Delve
   currentCofferKeys = 3028,
   currentCofferKeyShards = 3310,
@@ -103,6 +104,7 @@ C.sections = {
     "showSparksEnabled",
     "showCatalystEnabled",
     "showVaultTokensEnabled",
+    "showRerollTokensEnabled",
   },
   [2] = {
     "showCurrentCofferKeysEnabled",
@@ -179,6 +181,12 @@ C.configData = {
     default = true,
     height = C.TraditionalRowValue,
     tooltip = "Show the number of Vault Tokens in bags",
+  },
+  showRerollTokensEnabled = {
+    label = "Show Reroll Tokens",
+    default = true,
+    height = C.TraditionalRowValue,
+    tooltip = "Show the number of Reroll Tokens available",
   },
   showCurrentCofferKeysEnabled = {
     label = "Show Coffer Key/Shards",
@@ -310,6 +318,7 @@ C.labels = {
   sparks = "Sparks |T7551418:16:16:0:0|t",
   catalyst = "Catalyst |T4622294:16:16:0:0|t",
   vaultTokens = "Vault Tokens |T2744751:16:16:0:0|t",
+  rerollTokens = "Reroll Tokens |T7658128:16:16:0:0|t",
 
   cofferKeys = "Weekly Keys",
   currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",

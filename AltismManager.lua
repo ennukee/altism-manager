@@ -1073,6 +1073,7 @@ function AltismManager:ResetCharTable(char_table)
 	char_table.wyrms_max = 0;
 	char_table.drakes_max = 0;
 	char_table.whelplings_max = 0;
+	char_table.reroll_tokens_max = 0;
 	char_table.undermine_normal = 0;
 	char_table.undermine_heroic = 0;
 	char_table.undermine_mythic = 0;
@@ -1557,6 +1558,10 @@ function AltismManager:CollectData()
 
 	local catalystData = C_CurrencyInfo.GetCurrencyInfo(C.ids.catalyst)
 	char_table.currentCatalyst = catalystData.quantity;
+
+	local rerollTokenData = C_CurrencyInfo.GetCurrencyInfo(C.ids.reroll_tokens);
+	char_table.currentRerollTokens = rerollTokenData.quantity;
+	AltismManagerDB.currentMaxRerollTokens = rerollTokenData.maxQuantity;
 
 	local cofferKeyShards = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeyShards);
 	local shardsThisWeek = cofferKeyShards.quantityEarnedThisWeek;
@@ -2178,6 +2183,22 @@ function AltismManager:CreateContent()
 			configKey = "showVaultTokensEnabled",
 			data = function(alt_data)
 				return tostring(alt_data.vaultTokens or "?")
+			end,
+		},
+		rerollTokens = {
+			order = 3050,
+			label = C.labels.rerollTokens,
+			enabled = true,
+			configKey = "showRerollTokensEnabled",
+			data = function(alt_data)
+				if (alt_data.currentRerollTokens == nil or AltismManagerDB.currentMaxRerollTokens == nil) then
+					return "|cFFbbbbbbUnknown|r"
+				end
+				if (alt_data.currentRerollTokens == AltismManagerDB.currentMaxRerollTokens) then
+					return "|cFF39ec3c" .. tostring(alt_data.currentRerollTokens) .. "|r"
+				else 
+					return tostring(alt_data.currentRerollTokens).." |cffcccccc(+"..(AltismManagerDB.currentMaxRerollTokens - alt_data.currentRerollTokens)..")|r"
+				end
 			end,
 		},
 		-- ! Offset
