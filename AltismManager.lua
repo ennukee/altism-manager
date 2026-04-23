@@ -1074,6 +1074,7 @@ function AltismManager:ResetCharTable(char_table)
 	char_table.drakes_max = 0;
 	char_table.whelplings_max = 0;
 	char_table.reroll_tokens_max = 0;
+	char_table.reroll_tokens_earned = 0;
 	char_table.undermine_normal = 0;
 	char_table.undermine_heroic = 0;
 	char_table.undermine_mythic = 0;
@@ -1561,6 +1562,8 @@ function AltismManager:CollectData()
 
 	local rerollTokenData = C_CurrencyInfo.GetCurrencyInfo(C.ids.reroll_tokens);
 	char_table.currentRerollTokens = rerollTokenData.quantity;
+	char_table.reroll_tokens_max = rerollTokenData.maxQuantity;
+	char_table.reroll_tokens_earned = rerollTokenData.totalEarned;
 	AltismManagerDB.currentMaxRerollTokens = rerollTokenData.maxQuantity;
 
 	local cofferKeyShards = C_CurrencyInfo.GetCurrencyInfo(C.ids.currentCofferKeyShards);
@@ -2191,13 +2194,16 @@ function AltismManager:CreateContent()
 			enabled = true,
 			configKey = "showRerollTokensEnabled",
 			data = function(alt_data)
-				if (alt_data.currentRerollTokens == nil or AltismManagerDB.currentMaxRerollTokens == nil) then
+				local current = alt_data.currentRerollTokens
+				local maxQuantity = alt_data.reroll_tokens_max
+				local totalEarned = alt_data.reroll_tokens_earned
+				if (current == nil or maxQuantity == nil or totalEarned == nil) then
 					return "|cFFbbbbbbUnknown|r"
 				end
-				if (alt_data.currentRerollTokens == AltismManagerDB.currentMaxRerollTokens) then
-					return "|cFF39ec3c" .. tostring(alt_data.currentRerollTokens) .. "|r"
+				if (totalEarned >= maxQuantity) then
+					return "|cFF39ec3c" .. tostring(current) .. "|r"
 				else 
-					return tostring(alt_data.currentRerollTokens).." |cffcccccc(+"..(AltismManagerDB.currentMaxRerollTokens - alt_data.currentRerollTokens)..")|r"
+					return tostring(current).." |cffcccccc(+"..(maxQuantity - totalEarned)..")|r"
 				end
 			end,
 		},
