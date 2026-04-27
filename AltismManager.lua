@@ -1373,10 +1373,12 @@ function AltismManager:CollectData()
 	local normal_difficulty = 14
 	local heroic_difficulty = 15
 	local mythic_difficulty = 16
+	local lfr_difficulty = 17
 	local difficultyMap = {
 		[normal_difficulty] = 'N',
 		[heroic_difficulty] = 'H',
 		[mythic_difficulty] = 'M',
+		[lfr_difficulty] = 'L',
 		[13] = 'X',
 		[0] = 'X'
 	}
@@ -1959,6 +1961,8 @@ function AltismManager:RaidVaultSummaryString(alt_data)
 		result = result .. "|cFF0070dd" .. alt_data.raidvault[1] .. "|r"
 	elseif alt_data.raidvault[1] == "M" then
 		result = result .. "|cFFa335ee" .. alt_data.raidvault[1] .. "|r"
+	elseif alt_data.raidvault[1] == "L" then
+		result = result .. "|cFFCCCCCC" .. alt_data.raidvault[1] .. "|r"
 	else
 		result = result .. "|cFF999999" .. alt_data.raidvault[1] .. "|r"
 	end
@@ -1971,6 +1975,8 @@ function AltismManager:RaidVaultSummaryString(alt_data)
 		result = result .. " / |cFF0070dd" .. alt_data.raidvault[2] .. "|r"
 	elseif alt_data.raidvault[2] == "M" then
 		result = result .. " / |cFFa335ee" .. alt_data.raidvault[2] .. "|r"
+	elseif alt_data.raidvault[2] == "L" then
+		result = result .. " / |cFFCCCCCC" .. alt_data.raidvault[2] .. "|r"
 	else
 		result = result .. " / |cFF999999" .. alt_data.raidvault[2] .. "|r"
 	end
@@ -1983,6 +1989,8 @@ function AltismManager:RaidVaultSummaryString(alt_data)
 		result = result .. " / |cFF0070dd" .. alt_data.raidvault[3] .. "|r"
 	elseif alt_data.raidvault[3] == "M" then
 		result = result .. " / |cFFa335ee" .. alt_data.raidvault[3] .. "|r"
+	elseif alt_data.raidvault[3] == "L" then
+		result = result .. " / |cFFCCCCCC" .. alt_data.raidvault[3] .. "|r"
 	else
 		result = result .. " / |cFF999999" .. alt_data.raidvault[3] .. "|r"
 	end
