@@ -1915,6 +1915,7 @@ end
 
 function AltismManager:ProduceRelevantMythics(run_history)
 	-- find thresholds
+	run_history = run_history or {}
 	local weekly_info = C_WeeklyRewards.GetActivities(Enum.WeeklyRewardChestThresholdType.MythicPlus);
 	table.sort(run_history, function(left, right) return left.level > right.level; end);
 	local thresholds = {}
