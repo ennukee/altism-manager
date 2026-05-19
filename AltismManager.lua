@@ -1638,18 +1638,23 @@ function AltismManager:CollectData()
 	char_table.gold = gold;
 	char_table.whelplings_crest = whelplings_crest;
 	char_table.whelplings_max = whelplings_info.maxQuantity;
+	char_table.whelplings_uncapped = whelplings_info.maxQuantity == 0;
 	char_table.whelplings_earned = whelplings_info.totalEarned;
 	char_table.drakes_crest = drakes_crest;
 	char_table.drakes_max = drakes_info.maxQuantity;
+	char_table.drakes_uncapped = drakes_info.maxQuantity == 0;
 	char_table.drakes_earned = drakes_info.totalEarned;
 	char_table.wyrms_crest = wyrms_crest;
 	char_table.wyrms_max = wyrms_info.maxQuantity;
+	char_table.wyrms_uncapped = wyrms_info.maxQuantity == 0;
 	char_table.wyrms_earned = wyrms_info.totalEarned;
 	char_table.aspects_crest = aspects_crest;
 	char_table.aspects_max = aspects_info.maxQuantity;
+	char_table.aspects_uncapped = aspects_info.maxQuantity == 0;
 	char_table.aspects_earned = aspects_info.totalEarned;
 	char_table.tier5_crest = tier5_crest;
 	char_table.tier5_max = tier5_info.maxQuantity;
+	char_table.tier5_uncapped = tier5_info.maxQuantity == 0;
 	char_table.tier5_earned = tier5_info.totalEarned;
 	char_table.flightstones = GetCurrencyAmount(3008);
 	char_table.honor_points = GetCurrencyAmount(1792);
@@ -2356,6 +2361,9 @@ function AltismManager:CreateContent()
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
+					if alt_data.whelplings_uncapped then
+						return tostring(alt_data.whelplings_crest or "?")
+					end
 					if (alt_data.whelplings_max == alt_data.whelplings_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.whelplings_crest or "?") .. "|r"
 					else 
@@ -2373,6 +2381,9 @@ function AltismManager:CreateContent()
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
+					if alt_data.drakes_uncapped then
+						return tostring(alt_data.drakes_crest or "?")
+					end
 					if (alt_data.drakes_max == alt_data.drakes_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.drakes_crest or "?") .. "|r"
 					else 
@@ -2390,6 +2401,9 @@ function AltismManager:CreateContent()
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
+					if alt_data.wyrms_uncapped then
+						return tostring(alt_data.wyrms_crest or "?")
+					end
 					if (alt_data.wyrms_max == alt_data.wyrms_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.wyrms_crest or "?") .. "|r"
 					else 
@@ -2407,6 +2421,9 @@ function AltismManager:CreateContent()
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
+					if alt_data.aspects_uncapped then
+						return tostring(alt_data.aspects_crest or "?")
+					end
 					if (alt_data.aspects_max == alt_data.aspects_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.aspects_crest or "?") .. "|r"
 					else 
@@ -2424,6 +2441,9 @@ function AltismManager:CreateContent()
 			data = function(alt_data)
 				-- REMOVE `false and` WHEN TURBO BOOST IS OVER
 				if (self:GetConfigValue("showRemainingCrestsEnabled", alt_data.guid)) then
+					if alt_data.tier5_uncapped then
+						return tostring(alt_data.tier5_crest or "?")
+					end
 					if (alt_data.tier5_max == alt_data.tier5_earned) then
 						return "|cFF39ec3c" .. tostring(alt_data.tier5_crest or "?") .. "|r"
 					else 
