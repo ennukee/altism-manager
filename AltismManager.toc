@@ -2,7 +2,7 @@
 ## Title: Altism Manager
 ## Category: Altism
 ## Author: ennukee
-## Version: 1.6.3
+## Version: 1.6.4
 ## Notes: Basic alt currency and lockout manager
 ## SavedVariables: AltismManagerDB
 

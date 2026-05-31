@@ -2077,11 +2077,59 @@ function AltismManager:DelveVaultSummaryString(alt_data)
 end
 
 function AltismManager:CreateContent()
+	local function setupButtonTexture(button, fieldName, layer, atlasName, fallbackTextureId, blendMode, alpha)
+		local textureName = button:GetName() and (button:GetName() .. fieldName) or nil
+		local texture = button[fieldName] or button:CreateTexture(textureName, layer)
+		texture:ClearAllPoints()
+		texture:SetAllPoints()
+		if texture.SetAtlas then
+			texture:SetAtlas(atlasName, true)
+		else
+			texture:SetTexture(fallbackTextureId)
+		end
+		if blendMode then
+			texture:SetBlendMode(blendMode)
+		end
+		if alpha then
+			texture:SetAlpha(alpha)
+		end
+		button[fieldName] = texture
+		return texture
+	end
+
 	-- Close button
 	self.main_frame.closeButton = CreateFrame("Button", "CloseButton", self.main_frame, "UIPanelCloseButton");
 	self.main_frame.closeButton:ClearAllPoints()
 	self.main_frame.closeButton:SetPoint("BOTTOMRIGHT", self.main_frame, "TOPRIGHT", -5, 4);
 	self.main_frame.closeButton:SetScript("OnClick", function() AltismManager:HideInterface(); end);
+
+	-- Great Vault opener button
+	self.main_frame.weeklyRewardsButton = self.main_frame.weeklyRewardsButton or CreateFrame("Button", "AltismManagerWeeklyRewardsButton", self.main_frame)
+	self.main_frame.weeklyRewardsButton:ClearAllPoints()
+	self.main_frame.weeklyRewardsButton:SetPoint("BOTTOMLEFT", self.main_frame, "TOPLEFT", 2, 2)
+	self.main_frame.weeklyRewardsButton:SetSize(30, 30)
+	setupButtonTexture(self.main_frame.weeklyRewardsButton, "NormalTexture", "ARTWORK", "ui-journeys-greatvault-button", 7486942)
+	self.main_frame.weeklyRewardsButton:SetNormalTexture(self.main_frame.weeklyRewardsButton.NormalTexture)
+	setupButtonTexture(self.main_frame.weeklyRewardsButton, "PushedTexture", "ARTWORK", "ui-journeys-greatvault-button-pressed", 7486942, "ADD")
+	self.main_frame.weeklyRewardsButton:SetPushedTexture(self.main_frame.weeklyRewardsButton.PushedTexture)
+	setupButtonTexture(self.main_frame.weeklyRewardsButton, "HighlightTexture", "HIGHLIGHT", "ui-journeys-greatvault-button", 7486942, "ADD", 0.35)
+	self.main_frame.weeklyRewardsButton:SetHighlightTexture(self.main_frame.weeklyRewardsButton.HighlightTexture)
+	self.main_frame.weeklyRewardsButton:SetScript("OnClick", function()
+		local weeklyRewardsFrame = rawget(_G, "WeeklyRewardsFrame")
+		if not weeklyRewardsFrame then
+			local cAddOns = rawget(_G, "C_AddOns")
+			local uiParentLoadAddOn = rawget(_G, "UIParentLoadAddOn")
+			if cAddOns and cAddOns.LoadAddOn then
+				cAddOns.LoadAddOn("Blizzard_WeeklyRewards")
+			elseif uiParentLoadAddOn then
+				uiParentLoadAddOn("Blizzard_WeeklyRewards")
+			end
+			weeklyRewardsFrame = rawget(_G, "WeeklyRewardsFrame")
+		end
+		if weeklyRewardsFrame then
+			weeklyRewardsFrame:Show()
+		end
+	end)
 	--self.main_frame.closeButton:SetSize(32, h);
 
 	local function checkSectionFlags(section_id) 
