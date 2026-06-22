@@ -765,7 +765,9 @@ end
 
 function AltismManager:GetMidnightRaidProgressData(alt_data, saveKey)
 	local result = {}
-	local bossCounts = { 6, 1, 2 }
+	-- Midnight raid groups rendered left-to-right: Voidspire, Dreamrift,
+	-- Quel'Danas.
+	local bossCounts = { 6, 1, 2, 1 }
 
 	for groupIndex, bossCount in ipairs(bossCounts) do
 		local raidId = (C.ids.midnightRaids and (C.ids.midnightRaids[groupIndex - 1] or C.ids.midnightRaids[groupIndex])) or nil
@@ -1373,6 +1375,7 @@ function AltismManager:CollectData()
 	local normal_difficulty = 14
 	local heroic_difficulty = 15
 	local mythic_difficulty = 16
+	local mythic_flex_difficulty = 233
 	local lfr_difficulty = 17
 	local difficultyMap = {
 		[normal_difficulty] = 'N',
@@ -1425,7 +1428,7 @@ function AltismManager:CollectData()
 				elseif difficulty == heroic_difficulty then
 					raidSave.heroic_savedata = bossKillData
 					raidSave.heroic_kills = killed_bosses
-				elseif difficulty == mythic_difficulty then
+				elseif difficulty == mythic_difficulty or difficulty == mythic_flex_difficulty then
 					raidSave.mythic_savedata = bossKillData
 					raidSave.mythic_kills = killed_bosses
 				end
