@@ -1382,6 +1382,7 @@ function AltismManager:CollectData()
 		[heroic_difficulty] = 'H',
 		[mythic_difficulty] = 'M',
 		[lfr_difficulty] = 'L',
+		[mythic_flex_difficulty] = 'M',
 		[13] = 'X',
 		[0] = 'X'
 	}
