@@ -5,14 +5,14 @@ local C = {}
 -- ! ALL IDs NEED AN UPDATE FOR 12.0 WHEN AVAILABLE
 C.ids = {
   -- Lowest to highest tier crests, may not be called these names in the future
-  weathered_crest = 3383,
-  carved_crest = 3341,
-  runed_crest = 3343,
-  gilded_crest = 3345,
-  myth_crest = 3347,
+  weathered_crest = 3442,
+  carved_crest = 3443,
+  runed_crest = 3444,
+  gilded_crest = 3445,
+  myth_crest = 3446,
   -- Important PvM currencies
-  spark = 3212,
-  catalyst = 3378,
+  spark = 3509,
+  catalyst = 3465,
   vault_tokens = 258556,
   reroll_tokens = 3418,
   -- Delve
@@ -316,10 +316,10 @@ C.labels = {
   mythicKeystone = "Keystone |T525134:16:16:0:0|t",
   mythicPlusRating = "Mythic+ Rating",
   
-  sparks = "Sparks |T7551418:16:16:0:0|t",
-  catalyst = "Catalyst |T4622294:16:16:0:0|t",
+  sparks = "Sparks |T7551419:16:16:0:0|t",
+  catalyst = "Catalyst |T4622293:16:16:0:0|t",
   vaultTokens = "Vault Tokens |T2744751:16:16:0:0|t",
-  rerollTokens = "Reroll Tokens |T7658128:16:16:0:0|t",
+  rerollTokens = "Reroll Tokens |T7658129:16:16:0:0|t",
 
   cofferKeys = "Weekly Keys",
   currentCofferKeys = "Current Keys |T4622270:16:16:0:0|t",
@@ -334,11 +334,11 @@ C.labels = {
   specialAssignments = "Special Asgmt",
 
   upgradeCrests = "Upgrade Crests",
-  whelplingCrest = "Adventurer |T7639517:16:16:0:0|t",
-  drakeCrest = "Veteran |T7639525:16:16:0:0|t",
-  wyrmCrest = "Champion |T7639519:16:16:0:0|t",
-  aspectCrest = "Hero |T7639521:16:16:0:0|t",
-  mythCrest = "Myth |T7639523:16:16:0:0|t",
+  whelplingCrest = "Adventurer |T7734054:16:16:0:0|t",
+  drakeCrest = "Veteran |T7734062:16:16:0:0|t",
+  wyrmCrest = "Champion |T7734056:16:16:0:0|t",
+  aspectCrest = "Hero |T7734058:16:16:0:0|t",
+  mythCrest = "Myth |T7734060:16:16:0:0|t",
   
   pvpCurrency = "PVP Currency",
   honor = "Honor |T1455894:16:16:0:0|t",
