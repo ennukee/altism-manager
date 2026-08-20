@@ -765,9 +765,8 @@ end
 
 function AltismManager:GetMidnightRaidProgressData(alt_data, saveKey)
 	local result = {}
-	-- Midnight raid groups rendered left-to-right: Voidspire, Dreamrift,
-	-- Quel'Danas.
-	local bossCounts = { 6, 1, 2, 1 }
+	-- Midnight raid groups rendered left-to-right: 8-boss raid, then 1-boss raid.
+	local bossCounts = { 8, 1 }
 
 	for groupIndex, bossCount in ipairs(bossCounts) do
 		local raidId = (C.ids.midnightRaids and (C.ids.midnightRaids[groupIndex - 1] or C.ids.midnightRaids[groupIndex])) or nil

@@ -36,10 +36,8 @@ C.ids = {
   -- Raid
   raid = 2406,
   midnightRaids = {
-    [0] = 2529,
-    [1] = 2531,
-    [2] = 2533,
-    [3] = 2427,
+    [0] = 2606,
+    [1] = 2632,
   },
   worldBoss = 87345,
   -- Expansion-zones
