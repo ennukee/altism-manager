@@ -13,7 +13,7 @@ C.ids = {
   -- Important PvM currencies
   spark = 3509,
   catalyst = 3465,
-  vault_tokens = 258556,
+  vault_tokens = 269862,
   reroll_tokens = 3418,
   -- Delve
   currentCofferKeys = 3028,

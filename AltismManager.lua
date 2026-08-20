@@ -1216,79 +1216,90 @@ end
 
 local dungeons = {
 	-- CATA
-	-- [438] = "VP",
-	-- [456] = "TOTT",
-	-- [507] = "GB",
+	[438] = "VP",
+	[456] = "TOTT",
+	[507] = "GB",
 	-- MoP
-	-- [2] =   "TJS",
+	[2] =   "TJS",
 	-- WoD
-	-- [165] = "SBG",
-	-- [166] = "GD",
-	-- [168] = "EB",
-	-- [169] = "ID",
+	[165] = "SBG",
+	[166] = "GD",
+	[168] = "EB",
+	[169] = "ID",
 	-- Legion
-	-- [198] = "DHT",
-	-- [199] = "BRH",
-	-- [200] = "HOV",
-	-- [206] = "NL",
-	-- [210] = "COS",
-	-- [227] = "LOWR",
-	-- [234] = "UPPR",
+	[198] = "DHT",
+	[199] = "BRH",
+	[200] = "HOV",
+	[206] = "NL",
+	[210] = "COS",
+	[227] = "LOWR",
+	[234] = "UPPR",
+	[207] = "VOTW",
+	[208] = "MOS",
+	[209] = "ARCWAY",
+	[233] = "COEN",
 	-- BFA
-	-- [244] = "AD",
-	-- [245] = "FH",
-	-- [246] = "TD",
-	-- [247] = "ML",
-	-- [248] = "WCM",
-	-- [249] = "KR",
-	-- [250] = "Seth",
-	-- [251] = "UR",
-	-- [252] = "SotS",
-	--[353] = "SoB",
-	--[369] = "YARD",
-	-- [370] = "WORK",
+	[244] = "AD",
+	[245] = "FH",
+	[246] = "TD",
+	[247] = "ML",
+	[248] = "WCM",
+	[249] = "KR",
+	[250] = "Seth",
+	[251] = "UR",
+	[252] = "SotS",
+	[353] = "SoB",
+	[369] = "YARD",
+	[370] = "WORK",
 	-- Shadowlands
-	--[375] = "MoTS",
-	--[376] = "NW",
-	-- [377] = "DOS",
-	-- [378] = "HoA", -- Halls of Atonement
-	-- [379] = "PF",
-	-- [380] = "SD",
-	-- [381] = "SoA",
-	-- [382] = "ToP",
-	-- [391] = "STRT", -- Tazavesh: Streets
-	-- [392] = "GMBT", -- Tazavesh: Gambit
+	[375] = "MoTS",
+	[376] = "NW",
+	[377] = "DOS",
+	[378] = "HoA", -- Halls of Atonement
+	[379] = "PF",
+	[380] = "SD",
+	[381] = "SoA",
+	[382] = "ToP",
+	[391] = "STRT", -- Tazavesh: Streets
+	[392] = "GMBT", -- Tazavesh: Gambit
 	-- Dragonflight
-	-- [399] = "RLP",
-	-- [400] = "NO",
-	-- [401] = "AV",
-	-- [402] = "AA",
-	-- [403] = "ULD",
-	-- [404] = "NELT",
-	-- [405] = "BH",
-	-- [406] = "HOI"
-	-- [463] = "FALL",
-	-- [464] = "RISE",
+	[399] = "RLP",
+	[400] = "NO",
+	[401] = "AV",
+	[402] = "AA",
+	[403] = "ULD",
+	[404] = "NELT",
+	[405] = "BH",
+	[406] = "HOI",
+	[463] = "FALL",
+	[464] = "RISE",
 	-- The War Within
-	-- [499] = "PSF", -- Priory of the Sacred Flame
-	-- [500] = "ROOK", -- The Rookery
-	--[501] = "SV", -- The Stonevault
-	--[502] = "COT", -- City of Threads
-	-- [503] = "ARAK", -- Ara-Kara, City of Echoes
-	-- [504] = "DFC", -- Darkflame Cleft
-	-- [505] = "DAWN", -- The Dawnbreaker
-	-- [506] = "BREW", -- Cinderbrew Meadery
-	-- [525] = "FLOOD", -- Operation: Floodgate
-	-- [542] = "ECO" -- Eco-Dome Al'dani
+	[499] = "PSF", -- Priory of the Sacred Flame
+	[500] = "ROOK", -- The Rookery
+	[501] = "SV", -- The Stonevault
+	[502] = "COT", -- City of Threads
+	[503] = "ARAK", -- Ara-Kara, City of Echoes
+	[504] = "DFC", -- Darkflame Cleft
+	[505] = "DAWN", -- The Dawnbreaker
+	[506] = "BREW", -- Cinderbrew Meadery
+	[525] = "FLOOD", -- Operation: Floodgate
+	[542] = "ECO", -- Eco-Dome Al'dani
 	-- Midnight S1
 	[239] = "SEAT", -- Seat of the Triumverate
 	[161] = "SKY", -- Skyreach
 	[560] = "CAVERN", -- Maisara Caverns
 	[557] = "SPIRE", -- Windrunner spire
 	[556] = "PIT", -- Pit of Saron
-	[402] = "AA", -- Algeth'ar Academy
 	[558] = "MT", -- Magister's Terrace
 	[559] = "XENAS", -- Nexus-Point Xenas
+
+	-- Midnight S2
+	[583] = "SEAT",
+	[584] = "VALE",
+	[585] = "ARENA",
+	[586] = "DEN",
+	[587] = "MURDER",
+	[588] = "ALTAR",
 };
 
 function AltismManager:CollectData()
